@@ -30,7 +30,14 @@ export class AuthService {
   }
 
   public onAuthStateChange(callback: NextOrObserver<User>): () => void {
-    if (!auth) return () => {};
+    if (!auth) {
+      if (typeof callback === 'function') {
+        callback(null);
+      } else if (callback && typeof callback.next === 'function') {
+        callback.next(null);
+      }
+      return () => {};
+    }
     return onAuthStateChanged(auth, callback as any);
   }
 
