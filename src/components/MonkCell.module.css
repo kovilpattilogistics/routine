@@ -1,0 +1,61 @@
+.cellWrap {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  overflow: hidden;
+  /* subtle outer ring border for empty state matching Notion styling */
+  box-shadow: inset 0 0 0 1.5px rgba(55, 53, 47, 0.15);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Shrink for smaller mobiles to definitely fit 7 days */
+@media (max-width: 450px) {
+  .cellWrap {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.cellWrap:active {
+  transform: scale(0.92);
+}
+
+/* Filled solid color passed down from Card Theme css variable! */
+.cellDone {
+  background-color: var(--theme-color);
+  box-shadow: none; /* remove the grey ring */
+  color: #ffffff; /* checkmark color */
+}
+
+.cellExceeded {
+  background-color: var(--accent-gold);
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+  color: #ffffff;
+}
+
+.cellMissed {
+  background-color: transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 82, 82, 0.3);
+  color: #ff5252;
+}
+
+/* Framer Motion ripple container */
+.ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}

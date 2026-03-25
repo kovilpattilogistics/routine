@@ -1,0 +1,144 @@
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.habitCard {
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  will-change: transform;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+/* Mobile optimizations */
+@media (max-width: 450px) {
+  .habitCard {
+    padding: 10px 12px;
+  }
+}
+
+/* Perfect Pastel Themes injecting custom variables! */
+.themeOrange {
+  --theme-color: #F88534;
+  --theme-bg: #FFF8ED;
+  --theme-pill: rgba(248, 133, 52, 0.15);
+  background: var(--theme-bg);
+  border: 1px solid rgba(248, 133, 52, 0.1);
+}
+
+.themePurple {
+  --theme-color: #8A58FF;
+  --theme-bg: #F5F2FE;
+  --theme-pill: rgba(138, 88, 255, 0.15);
+  background: var(--theme-bg);
+  border: 1px solid rgba(138, 88, 255, 0.1);
+}
+
+.themeBlue {
+  --theme-color: #469DF6;
+  --theme-bg: #F0F7FF;
+  --theme-pill: rgba(70, 157, 246, 0.15);
+  background: var(--theme-bg);
+  border: 1px solid rgba(70, 157, 246, 0.1);
+}
+
+.themeGreen {
+  --theme-color: #20C05B;
+  --theme-bg: #F2FBF5;
+  --theme-pill: rgba(32, 192, 91, 0.15);
+  background: var(--theme-bg);
+  border: 1px solid rgba(32, 192, 91, 0.1);
+}
+
+/* Header Elements */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.emoji {
+  font-size: 16px;
+}
+
+.habitName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.streakText {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+/* Weekly Grid - Mobile Spacing */
+.weekGrid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+}
+
+.dayCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 2px;
+  border-radius: 16px;
+}
+
+@media (max-width: 450px) {
+  .dayCol {
+    padding: 6px 1px; /* Tighter padding for very small mobile phones */
+  }
+}
+
+.todayPill {
+  background-color: var(--theme-pill);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.dayLabel {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.dayLabelActive {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cellWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.shakeCard {
+  animation: horizontalShake 0.4s ease-in-out;
+}
+
+@keyframes horizontalShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}

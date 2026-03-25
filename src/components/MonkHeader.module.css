@@ -1,0 +1,82 @@
+.headerWrap {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
+  gap: 12px;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.userInfo:hover {
+  opacity: 0.8;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--card-border);
+  background: #252525;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.levelTag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.xpNumber {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  opacity: 0.9;
+}
+
+.xpBarWrapper {
+  width: 100%;
+  height: 6px;
+  background: #262626;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.xpBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green-start), var(--accent-green-end));
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xpNextLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 4px;
+}
