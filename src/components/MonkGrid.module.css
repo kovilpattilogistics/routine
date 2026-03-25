@@ -13,14 +13,13 @@
   gap: 10px;
   will-change: transform;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
 .habitCard:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  filter: brightness(0.97);
 }
 
 /* Mobile optimizations */
@@ -107,7 +106,7 @@
 }
 
 .todayPill {
-  background-color: rgba(255, 255, 255, 0.08); /* Unified Today indicator for better contrast */
+  background-color: var(--card-border);
   transition: all 0.2s ease;
 }
 

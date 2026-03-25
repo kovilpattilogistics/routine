@@ -10,8 +10,8 @@
   justify-content: center;
   transition: transform 0.1s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   overflow: hidden;
-  /* white outer ring border for empty state matching new moody styling */
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  /* Uses CSS variable so it adapts to light (dark ring) or dark (white ring) contexts */
+  box-shadow: inset 0 0 0 1.5px var(--card-border);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }

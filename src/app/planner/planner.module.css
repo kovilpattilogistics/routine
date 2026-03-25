@@ -1,9 +1,20 @@
 .container {
   min-height: 100vh;
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: #FFFFFF;
+  color: #111;
   display: flex;
   flex-direction: column;
+
+  /* Override dark global variables for this light-background page */
+  --background: #FFFFFF;
+  --foreground: #111111;
+  --card-bg: #F7F7F5;
+  --card-border: #E8E8E6;
+  --text-primary: #111111;
+  --text-muted: #6B6B6B;
+  --text-faint: #AAAAAA;
+  --cell-empty: rgba(0, 0, 0, 0.06);
+  --cell-missed: rgba(239, 68, 68, 0.1);
 }
 
 .main {
