@@ -15,16 +15,16 @@
 .sheet {
   width: 100%;
   max-width: 600px;
-  background: var(--background);
+  background: #121217;
   border-top-left-radius: var(--radius-lg);
   border-top-right-radius: var(--radius-lg);
-  border: 1px solid var(--card-border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: none;
-  padding: 24px 20px;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.06);
+  gap: 24px;
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
 }
 
 .header {
@@ -85,29 +85,26 @@
 }
 
 .aiSection {
-  background: #F5F2FE;
-  border: 1px solid rgba(138, 88, 255, 0.15);
+  background: rgba(138, 88, 255, 0.08);
+  border: 1px solid rgba(138, 88, 255, 0.2);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 20px;
 }
 
 .aiBtn {
   background: var(--accent-green-start);
   color: #fff;
-  padding: 10px 18px;
-  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  border-radius: 50px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all 0.2s;
   width: 100%;
 }
-.aiBtn:hover {
-  opacity: 0.9;
-}
 
 .aiText {
-  color: #37352f;
+  color: #fff;
   font-size: 14px;
   line-height: 1.5;
   text-align: left;

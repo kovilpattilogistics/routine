@@ -1,7 +1,7 @@
-/* Profile page — Notion-style */
 .root {
   min-height: 100vh;
-  background: #fff;
+  background: var(--background);
+  color: var(--foreground);
   display: flex;
   flex-direction: column;
 }
@@ -17,8 +17,8 @@
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #6366f1;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   display: inline-block;
@@ -26,15 +26,14 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Topbar */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 10;
   height: 52px;
-  border-bottom: 1px solid #f3f4f6;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--card-border);
+  background: rgba(13, 13, 18, 0.8);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   padding: 0 40px;
@@ -85,13 +84,13 @@
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: #111;
+  color: #fff;
   margin-bottom: 3px;
 }
 
 .profileEmail {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 /* Divider */
@@ -141,23 +140,23 @@
 .infoValue {
   font-size: 14px;
   font-weight: 500;
-  color: #111;
+  color: #fff;
 }
 
 /* Edit button */
 .editBtn {
   font-size: 13px;
   font-weight: 500;
-  color: #6366f1;
-  padding: 4px 12px;
-  border-radius: 6px;
-  background: #eef2ff;
-  border: none;
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 50px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.2s;
 }
 
-.editBtn:hover { background: #e0e7ff; }
+.editBtn:hover { border-color: #fff; background: rgba(255, 255, 255, 0.05); }
 
 /* Edit grid */
 .editGrid {
@@ -248,13 +247,13 @@
   color: #fff;
   padding: 8px 18px;
   border-radius: 7px;
-  background: #111;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.2s;
 }
 
-.saveBtn:hover:not(:disabled) { background: #333; }
+.saveBtn:hover:not(:disabled) { border-color: #fff; background: rgba(255, 255, 255, 0.15); }
 .saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Sign out */
@@ -280,8 +279,8 @@
 }
 
 .badgeCard {
-  background: #FFF;
-  border: 1px solid #EAEAEA;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   padding: 20px 16px;
   text-align: center;
@@ -320,12 +319,12 @@
 .badgeTitle {
   font-size: 13px;
   font-weight: 700;
-  color: #111;
+  color: #fff;
 }
 
 .badgeDesc {
   font-size: 11px;
-  color: #6B7280;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 

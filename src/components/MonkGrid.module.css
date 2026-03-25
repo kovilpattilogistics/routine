@@ -6,14 +6,21 @@
 }
 
 .habitCard {
-  border-radius: 16px;
-  padding: 12px 14px;
+  border-radius: 20px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   will-change: transform;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.habitCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Mobile optimizations */
@@ -26,34 +33,22 @@
 /* Perfect Pastel Themes injecting custom variables! */
 .themeOrange {
   --theme-color: #F88534;
-  --theme-bg: #FFF8ED;
-  --theme-pill: rgba(248, 133, 52, 0.15);
-  background: var(--theme-bg);
-  border: 1px solid rgba(248, 133, 52, 0.1);
+  --theme-pill: rgba(248, 133, 52, 0.12);
 }
 
 .themePurple {
-  --theme-color: #8A58FF;
-  --theme-bg: #F5F2FE;
-  --theme-pill: rgba(138, 88, 255, 0.15);
-  background: var(--theme-bg);
-  border: 1px solid rgba(138, 88, 255, 0.1);
+  --theme-color: #A78BFA;
+  --theme-pill: rgba(167, 139, 250, 0.12);
 }
 
 .themeBlue {
-  --theme-color: #469DF6;
-  --theme-bg: #F0F7FF;
-  --theme-pill: rgba(70, 157, 246, 0.15);
-  background: var(--theme-bg);
-  border: 1px solid rgba(70, 157, 246, 0.1);
+  --theme-color: #60A5FA;
+  --theme-pill: rgba(96, 165, 250, 0.12);
 }
 
 .themeGreen {
-  --theme-color: #20C05B;
-  --theme-bg: #F2FBF5;
-  --theme-pill: rgba(32, 192, 91, 0.15);
-  background: var(--theme-bg);
-  border: 1px solid rgba(32, 192, 91, 0.1);
+  --theme-color: #34D399;
+  --theme-pill: rgba(52, 211, 153, 0.12);
 }
 
 /* Header Elements */
@@ -112,8 +107,8 @@
 }
 
 .todayPill {
-  background-color: var(--theme-pill);
-  transition: background-color 0.2s ease-in-out;
+  background-color: rgba(255, 255, 255, 0.08); /* Unified Today indicator for better contrast */
+  transition: all 0.2s ease;
 }
 
 .dayLabel {

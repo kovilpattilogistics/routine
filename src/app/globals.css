@@ -1,25 +1,26 @@
 :root {
-  /* Clean Notion Light Theme */
-  --background: #F9F9F8;
-  --foreground: #37352f;
+  /* Moody Dark Theme (from image) */
+  --background: #0D0D12;
+  --foreground: #FFFFFF;
   
-  --card-bg: #FFFFFF;
-  --card-border: #EAEAEA;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(255, 255, 255, 0.1);
   
-  --text-primary: #37352f;
-  --text-muted: rgba(55, 53, 47, 0.65);
+  --text-primary: #FFFFFF;
+  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-faint: rgba(255, 255, 255, 0.35);
   
-  /* Generic Accents (mostly overridden by Card themes) */
-  --accent-gold: #eab308;
+  /* Accents */
+  --accent-gold: #FACC15;
   --accent-green-start: #22c55e;
-  --accent-green-end: #16a34a;
+  --accent-green-end: #10b981;
 
-  --cell-empty: #FFFFFF;
-  --cell-missed: #fee2e2;
+  --cell-empty: rgba(255, 255, 255, 0.05);
+  --cell-missed: rgba(239, 68, 68, 0.15);
 
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
 }
 
 body {

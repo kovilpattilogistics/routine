@@ -109,7 +109,7 @@ export default function LoginPage() {
           {error && <p className={styles.error}>{error}</p>}
 
           <button type="submit" className={styles.submitBtn} disabled={isLoading}>
-            {isLoading ? <span className={styles.spinner} /> : null}
+            {isLoading ? <span className={styles.btnSpinner} /> : null}
             {isLoading ? "Signing in…" : "Sign In"}
           </button>
         </form>
