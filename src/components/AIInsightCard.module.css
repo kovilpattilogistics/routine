@@ -1,40 +1,43 @@
 .card {
   width: 100%;
-  border-radius: 12px;
-  padding: 20px 24px;
+  border-radius: 16px;
+  padding: 24px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #f8fafc; /* Soft light indigo/slate tint for white bg */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   min-height: 80px;
 }
 
 .closeBtn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 16px;
+  right: 16px;
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: #94a3b8;
   cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-.closeBtn:hover {
-  background: rgba(0,0,0,0.05);
-  color: #4b5563;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 2;
 }
 
-/* Removed pastel themes in favor of unified dark theme */
-.theme_insight .iconWrap { color: #60A5FA; }
-.theme_praise .iconWrap { color: #F472B6; }
-.theme_streak_recovery .iconWrap { color: #FBBF24; }
-.theme_nudge .iconWrap { color: #34D399; }
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #475569;
+}
+
+/* Updated themes for better visibility on light background */
+.theme_insight .iconWrap { color: #2563eb; }
+.theme_praise .iconWrap { color: #d946ef; }
+.theme_streak_recovery .iconWrap { color: #d97706; }
+.theme_nudge .iconWrap { color: #059669; }
 
 .header {
   display: flex;
@@ -47,34 +50,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #475569;
   transition: color 0.3s ease;
 }
 
 .title {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: #64748b;
 }
 
 .focusTag {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 10px;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 11px;
   font-weight: 600;
   margin-left: auto;
-  color: rgba(255, 255, 255, 0.75);
+  margin-right: 32px; /* Add space for close button */
+  color: #475569;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .insightText {
   font-size: 15px;
   line-height: 1.6;
-  color: #fff;
-  font-weight: 400;
+  color: #334155;
+  font-weight: 450;
   margin: 0;
+  max-width: 90%;
 }
 
 /* Shimmer Loading / Thinking State */
@@ -88,7 +94,7 @@
 .shimmerLine {
   height: 14px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #f1f5f9;
   position: relative;
   overflow: hidden;
 }
