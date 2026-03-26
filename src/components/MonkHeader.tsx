@@ -6,9 +6,9 @@ import Link from "next/link";
 import { UserProfile } from "@/services/DatabaseService";
 import { GamificationService } from "@/services/GamificationService";
 
-export function MonkHeader({ profile, uid }: { profile: UserProfile; uid: string }) {
-  const currentLevel = GamificationService.getCurrentLevel(profile.totalXP || 0);
-  const progress = GamificationService.getLevelProgress(profile.totalXP || 0);
+export function MonkHeader({ profile, uid }: { profile: UserProfile | null; uid: string }) {
+  const currentLevel = GamificationService.getCurrentLevel(profile?.totalXP || 0);
+  const progress = GamificationService.getLevelProgress(profile?.totalXP || 0);
 
   return (
     <div className={styles.headerWrap}>
@@ -20,12 +20,12 @@ export function MonkHeader({ profile, uid }: { profile: UserProfile; uid: string
             className={styles.avatar} 
           />
           <div className={styles.nameBlock}>
-            <span className={styles.name}>{profile.name}</span>
+            <span className={styles.name}>{profile?.name || "Initializing..."}</span>
             <span className={styles.levelTag}>⚡ {currentLevel.title}</span>
           </div>
         </Link>
         <div className={styles.xpNumber}>
-          {profile.totalXP || 0} XP
+          {profile?.totalXP || 0} XP
         </div>
       </div>
 

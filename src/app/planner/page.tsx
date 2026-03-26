@@ -46,7 +46,7 @@ export default function PlannerPage() {
     DatabaseService.getInstance().getUserProfile(user.uid).then(setProfile);
   }, [user]);
 
-  if (authLoading || habitsLoading || !user) {
+  if (authLoading || habitsLoading || !profile || !user) {
     return (
       <div className={styles.loadingContainer}>
         <motion.div 
@@ -54,7 +54,7 @@ export default function PlannerPage() {
           transition={{ repeat: Infinity, duration: 2 }}
           className={styles.loadingText}
         >
-          Initializing MonkGrid...
+          Initializing your MonkGrid...
         </motion.div>
       </div>
     );
@@ -107,7 +107,7 @@ export default function PlannerPage() {
 
   return (
     <div className={styles.v2Container}>
-      <MonkHeader profile={profile!} uid={user.uid} />
+      <MonkHeader profile={profile} uid={user.uid} />
 
       <main className={styles.v2Main}>
         {/* AI Insight (Retained from v1) */}

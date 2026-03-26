@@ -2,7 +2,8 @@
   min-height: 100vh;
   background: #0d0d12;
   color: #fff;
-  padding-bottom: 100px;
+  padding-bottom: 160px; /* INCREASED for FAB safety */
+  position: relative;
 }
 
 .loadingContainer {
@@ -64,16 +65,17 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #666;
+  background: rgba(30,30,35,0.8);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   transition: all 0.2s;
-  z-index: 100;
+  z-index: 1000; /* HIGHEST index */
+  backdrop-filter: blur(10px);
 }
 
 .signOutFab:hover {
