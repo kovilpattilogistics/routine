@@ -95,10 +95,26 @@ export default function OnboardingPage() {
         await DatabaseService.getInstance().createUserProfile(user.uid, profileUpdate);
       }
 
-      // Add first task as a habit
+      // Initialize default groups first to ensure the hierarchy exists
+      await DatabaseService.getInstance().initDefaultGroups(user.uid);
+      
+      // Add first task as a habit if provided
       if (firstTask.trim()) {
-        const habit = { id: Date.now().toString(), name: firstTask.trim(), category: taskCategory || focusArea, completedDays: {} };
-        await DatabaseService.getInstance().addHabit(user.uid, habit);
+        const groups = await DatabaseService.getInstance().getGroups(user.uid);
+        const targetGroupId = groups[0]?.id; // Put in the first group (e.g., Gym or Wellness)
+        
+        if (targetGroupId) {
+          const habit = { 
+            id: Date.now().toString(), 
+            name: firstTask.trim(), 
+            groupId: targetGroupId,
+            emoji: "✨",
+            frequency: 'daily' as const,
+            sortOrder: 0,
+            completedDays: {} 
+          };
+          await DatabaseService.getInstance().addHabit(user.uid, targetGroupId, habit);
+        }
       }
     } catch (e) {
       console.error("Onboarding save error:", e);

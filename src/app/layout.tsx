@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { HabitProvider } from "@/context/HabitContext";
@@ -8,6 +8,10 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
+
 export const metadata: Metadata = {
   title: "Routine Tracker",
   description: "A minimalist routine tracker",
@@ -16,7 +20,6 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/logo-192.png",
   },
-  themeColor: "#ffffff",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

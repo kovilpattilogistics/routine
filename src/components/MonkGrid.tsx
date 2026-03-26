@@ -70,7 +70,7 @@ export function MonkGrid({ habits, onToggleEntry, onHabitClick, days, todayStr }
         
         // Status of today
         const stateToday = habit.completedDays?.[todayStr];
-        const isTodayDone = stateToday === 1 || stateToday === true;
+        const isTodayDone = !!stateToday;
         const isTodayExceeded = stateToday === 2;
 
         return (
@@ -96,7 +96,7 @@ export function MonkGrid({ habits, onToggleEntry, onHabitClick, days, todayStr }
                 const stateVal = habit.completedDays?.[dateStr];
                 let status: "EMPTY" | "DONE" | "EXCEEDED" | "MISSED" = "EMPTY";
                   
-                if (stateVal === 1 || stateVal === true) status = "DONE";
+                if (stateVal === 1 || !!stateVal) status = "DONE";
                 else if (stateVal === 2) status = "EXCEEDED";
                 else if (dateStr < todayStr) status = "MISSED";
 

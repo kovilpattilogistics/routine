@@ -37,7 +37,7 @@ export function HabitGrid({ habits, dates, toggleTask }: HabitGridProps) {
             <tr key={habit.id} className={styles.tr}>
               <td className={styles.tdName}>{habit.name}</td>
               {dates.map((date) => {
-                const isCompleted = habit.completedDays?.[date] === true;
+                const isCompleted = !!habit.completedDays?.[date];
 
                 return (
                   <td key={date} className={styles.tdCell}>
