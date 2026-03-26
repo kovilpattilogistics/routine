@@ -48,7 +48,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
   return (
     <div className={styles.gridContainer}>
       <div className={styles.headerRow}>
-        <div className={styles.habitMetaSpace} />
+        <div />
         <div className={styles.daysStrip}>
           {daysToRender.map(day => (
             <div key={day} className={`${styles.dayLabel} ${day === todayStr ? styles.today : ""}`}>
@@ -182,6 +182,7 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
               className={`
                 ${styles.cell} 
                 ${isFuture ? styles.future : ""} 
+                ${day === todayStr ? styles.today : ""}
                 ${isDone ? styles.done : ""} 
                 ${isExceeded ? styles.exceeded : ""}
                 ${isMissed ? styles.missed : ""}
