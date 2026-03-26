@@ -223,10 +223,13 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
                 onLongPressCell(habit.id, day);
               }}
             >
-              {cellStreak > 0 && (
+              {(isDone || isExceeded) && cellStreak > 0 && (
                 <span className={styles.cellStreak}>
                   {cellStreak}
                 </span>
+              )}
+              {isMissed && (
+                <span className={styles.missedCross}>✖</span>
               )}
               {isDone && <div className={styles.ripple} />}
             </div>

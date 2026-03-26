@@ -9,18 +9,37 @@ interface PastDataModalProps {
   onClose: () => void;
   onSelect: (date: Date) => void;
   currentDate: Date;
+  minDate: Date;
 }
 
-export function PastDataModal({ isOpen, onClose, onSelect, currentDate }: PastDataModalProps) {
+export function PastDataModal({ isOpen, onClose, onSelect, currentDate, minDate }: PastDataModalProps) {
   const [year, setYear] = useState(currentDate.getFullYear());
   const [month, setMonth] = useState(currentDate.getMonth());
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  const minYear = minDate.getFullYear();
+  const minMonth = minDate.getMonth();
 
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from(
+    { length: currentYear - minYear + 1 }, 
+    (_, i) => currentYear - i
+  );
+
+  const isMonthDisabled = (mIndex: number) => {
+    // If year is min year, disable months before min month
+    if (year === minYear && mIndex < minMonth) return true;
+    // If year is current year, disable months after current month
+    if (year === currentYear && mIndex > currentMonth) return true;
+    return false;
+  };
 
   const handleApply = () => {
     const d = new Date(year, month, 15); // Set to middle of month for balanced view
@@ -53,7 +72,7 @@ export function PastDataModal({ isOpen, onClose, onSelect, currentDate }: PastDa
                   onChange={(e) => setMonth(parseInt(e.target.value))}
                 >
                   {months.map((m, i) => (
-                    <option key={m} value={i}>{m}</option>
+                    <option key={m} value={i} disabled={isMonthDisabled(i)}>{m}</option>
                   ))}
                 </select>
               </div>

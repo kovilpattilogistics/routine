@@ -57,9 +57,9 @@ export function AIInsightCard({ profile, habits, latestAction }: AIInsightCardPr
         setInsightData(payload.data);
       } catch (err) {
         console.error("Failed to load AI insight:", err);
-        // User Requested Fallback
+        // Defensive Fallback - Always ensure a valid structure
         setInsightData({
-          type: "praise",
+          type: "insight",
           message: "you are doing good, keep up with your progress",
           focus: "Consistency"
         });

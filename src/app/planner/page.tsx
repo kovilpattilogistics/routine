@@ -125,6 +125,7 @@ export default function PlannerPage() {
             setIsPastDataModalOpen(false);
           }}
           currentDate={baseDate}
+          minDate={profile.createdAt?.toDate() || new Date()}
         />
       )}
 
