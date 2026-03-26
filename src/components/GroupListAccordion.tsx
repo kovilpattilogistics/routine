@@ -46,21 +46,6 @@ export function GroupListAccordion({ groups, activeGroupId, onSelect, onNewGroup
                 </div>
 
                 <div className={styles.rightSide}>
-                  {isAllDone && <span className={styles.checkIcon}>✅</span>}
-                  <div className={styles.progressArcWrap}>
-                    <svg className={styles.miniProgress} viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
-                      <motion.circle 
-                        cx="18" cy="18" r="16" fill="none" 
-                        stroke="currentColor" strokeWidth="3" 
-                        strokeLinecap="round"
-                        strokeDasharray="100 100"
-                        initial={{ strokeDashoffset: 100 }}
-                        animate={{ strokeDashoffset: 100 - progress }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    </svg>
-                  </div>
                   <motion.div 
                     className={styles.chevron}
                     animate={{ rotate: isActive ? 180 : 0 }}
