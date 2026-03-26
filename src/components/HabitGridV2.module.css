@@ -8,21 +8,21 @@
 .headerRow {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .habitMetaSpace {
-  width: 120px;
+  width: 100px;
 }
 
 .daysStrip {
   flex: 1;
   display: flex;
-  justify-content: space-around;
-  gap: 8px;
+  justify-content: space-between;
 }
 
 .dayLabel {
+  width: 32px;
   font-size: 8px;
   font-weight: 800;
   color: #444;
@@ -31,37 +31,45 @@
   white-space: nowrap;
 }
 
+@media (min-width: 768px) {
+  .dayLabel { width: 40px; }
+  .habitMetaSpace { width: 140px; }
+}
+
 .dayLabel.today {
   color: #fff;
+  font-weight: 900;
 }
 
 .habitList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .habitRow {
-  background: #1a1a1a;
-  border-radius: 16px;
-  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  cursor: grab;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.habitRow:active { cursor: grabbing; }
-
 .habitMeta {
-  width: 120px;
+  width: 100px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .habitMeta { width: 140px; }
 }
 
 .habitTitleRow {
@@ -70,9 +78,9 @@
   gap: 8px;
 }
 
-.emoji { font-size: 20px; }
+.emoji { font-size: 18px; }
 .name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -82,36 +90,28 @@
 
 .xpBar {
   width: 100%;
-  height: 4px;
-  background: #333;
+  height: 3px;
+  background: #222;
   border-radius: 2px;
   overflow: hidden;
-}
-
-.xpFill {
-  height: 100%;
-  background: #22c55e; /* Or theme color */
-  border-radius: 2px;
-  transition: width 0.3s ease;
 }
 
 .cellsRow {
   flex: 1;
   display: flex;
-  justify-content: space-around;
-  gap: 4px;
+  justify-content: space-between;
 }
 
 .cell {
   width: 32px;
   height: 32px;
-  background: #222;
+  background: #1a1a1f;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
-  border: 1.5px solid rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.02);
 }
 
 @media (min-width: 768px) {
@@ -142,32 +142,26 @@
 }
 
 .streakArea {
-  min-width: 60px;
-  text-align: right;
-  font-size: 13px;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
   font-weight: 800;
   color: #f97316;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: flex-end;
-}
-
-.brokenEmoji {
-  font-size: 16px;
-  animation: fadeIn 3s forwards;
+  gap: 2px;
 }
 
 .empathyMsg {
   position: absolute;
-  top: 100%;
-  left: 0;
-  font-size: 9px;
-  color: #666;
-  font-weight: 500;
+  top: calc(100% + 4px);
+  left: 12px;
+  font-size: 8px;
+  color: #555;
+  font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
-  margin-top: 4px;
 }
 
 @keyframes fadeIn {
