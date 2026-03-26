@@ -13,58 +13,51 @@
 }
 
 .gridContainer::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: #F1F1EF;
 }
 
 .gridContainer::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #D3D1CB;
   border-radius: 4px;
 }
 
 .headerRow, .habitRow {
   display: grid;
-  grid-template-columns: 80px 480px 40px; /* FIXED WIDTHS for scroll */
+  grid-template-columns: 80px 1440px 50px; /* 30 cols * 48px = 1440px */
   align-items: center;
   gap: 12px;
-  min-width: 612px; /* 80 + 480 + 40 + gaps */
+  min-width: 1594px; /* 80 + 1440 + 50 + gaps */
   box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .headerRow, .habitRow {
-    grid-template-columns: 140px 1fr 50px;
-    min-width: 100%;
+    grid-template-columns: 140px 1800px 60px; /* 30 cols * 60px = 1800px */
+    min-width: 2032px; 
     gap: 16px;
   }
 }
 
 .headerRow {
-  padding: 0 10px; /* SYNC with .habitRow padding */
+  padding: 0 10px;
   margin-bottom: -4px;
-}
-
-@media (min-width: 768px) {
-  .headerRow, .habitRow {
-    grid-template-columns: 140px 1fr 50px;
-    gap: 16px;
-  }
 }
 
 .daysStrip, .cellsRow {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(30, 1fr);
   gap: 8px;
   align-items: center;
 }
 
 .dayLabel {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
-  color: #666;
+  color: #787774;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
-  padding: 6px 0;
+  padding: 8px 0;
   border-radius: 8px;
   transition: all 0.2s;
 }
@@ -74,9 +67,9 @@
   position: sticky;
   left: 0;
   z-index: 20;
-  background: #0d0d12;
+  background: #FFFFFF;
   height: 24px;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid #EDEDEB;
 }
 
 @media (min-width: 768px) {
@@ -85,9 +78,9 @@
 
 .dayLabel.today {
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  background: #37352F;
+  border: 1px solid #37352F;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   font-weight: 900;
 }
 
@@ -118,12 +111,11 @@
   position: sticky;
   left: 0;
   z-index: 20;
-  background: #15151a; /* EXACT match for container bg */
-  padding: 10px 10px 10px 16px; /* High internal padding */
-  margin: -10px 0 -10px -10px; /* OFFSET parent row padding for full height coverage */
-  height: calc(100% + 20px); /* Fill the entire row height including padding */
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 10px 0 15px -10px rgba(0,0,0,0.8); /* Stronger edge shadow */
+  background: #FFFFFF; /* NOTION WHITE */
+  padding: 10px 10px 10px 16px; 
+  margin: -10px 0 -10px -10px; 
+  height: calc(100% + 20px); 
+  border-right: 1px solid #EDEDEB;
 }
 
 .habitTitleRow {
@@ -136,7 +128,7 @@
 .name {
   font-size: 12px;
   font-weight: 700;
-  color: #eee;
+  color: #37352F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -155,12 +147,12 @@
   width: 100%;
   max-width: 36px;
   margin: 0 auto;
-  background: #18181b;
+  background: #F1F1EF;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  border: 1px solid rgba(255,255,255,0.02);
+  border: 1px solid #EDEDEB;
 }
 
 @media (min-width: 768px) {
@@ -168,37 +160,35 @@
 }
 
 .cell.future {
-  background: #121215;
-  border: 1.5px dashed rgba(255,255,255,0.05);
+  background: #F1F1EF;
+  border: 1.5px dashed #EDEDEB;
   cursor: not-allowed;
 }
 
 .cell.today {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: #1c1c21;
+  border-color: #D3D1CB;
+  background: #F7F7F5;
 }
 
 
 .cell.done {
-  background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
-  box-shadow: 0 4px 12px rgba(167, 243, 208, 0.2);
-  border-color: rgba(255,255,255,0.2);
+  background: #DAF0E3;
+  border-color: #B5E0C9;
 }
 
 .cell.exceeded {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  box-shadow: 0 4px 12px rgba(254, 243, 199, 0.2);
-  border-color: rgba(255,255,255,0.2);
+  background: #FDECC8;
+  border-color: #F8DA9F;
 }
 
 .cell.missed {
-  background: linear-gradient(135deg, #fecaca, #fca5a5);
-  box-shadow: 0 4px 12px rgba(254, 202, 202, 0.2);
-  border-color: rgba(255,255,255,0.2);
+  background: #FFE2E5;
+  border-color: #F8C8CF;
 }
 
 .streakArea {
-  width: 40px;
+  width: 50px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -218,6 +208,18 @@
   font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
+}
+
+.cellStreak {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: 800;
+  color: #37352F;
+  pointer-events: none;
+  opacity: 0.9;
 }
 
 @keyframes fadeIn {

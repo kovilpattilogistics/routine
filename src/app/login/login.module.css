@@ -1,4 +1,4 @@
-/* Shared base for both login and register pages */
+/* Login page — exact same visual language as register */
 .page {
   min-height: 100vh;
   display: flex;
@@ -9,27 +9,20 @@
   overflow: hidden;
 }
 
-/* Background image */
 .bg {
   position: absolute;
   inset: 0;
-  background-image: url('https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=2072&auto=format&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop');
   background-size: cover;
   background-position: center;
   z-index: 0;
 }
 
-/* Dark overlay */
 .overlay {
   position: absolute;
   inset: 0;
   background: rgba(10, 10, 15, 0.7);
   z-index: 1;
-}
-
-.loader {
-  position: relative;
-  z-index: 10;
 }
 
 .backLink {
@@ -67,36 +60,18 @@
 }
 
 /* Logo */
-.premiumLogo {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
-  border-radius: 12px;
+.logoMark {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: #064e3b;
-  box-shadow: 0 4px 12px rgba(110, 231, 183, 0.3);
+  gap: 10px;
+  margin-bottom: 32px;
 }
 
 .logoText {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   color: #fff;
-  letter-spacing: -0.03em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.vTag {
-  font-size: 10px;
-  background: rgba(255,255,255,0.08);
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: rgba(255,255,255,0.4);
-  font-weight: 600;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
 }
 
 /* Heading */
@@ -198,7 +173,7 @@
 .submitBtn:active:not(:disabled) { transform: scale(0.98); }
 .submitBtn:disabled { opacity: 0.35; cursor: default; }
 
-/* Footer text */
+/* Footer */
 .switchText {
   margin-top: 32px;
   font-size: 14px;
@@ -216,7 +191,7 @@
 
 .switchLink:hover { border-bottom-color: #fff; }
 
-/* Spinner (form button) */
+/* Spinner (button loading) */
 .btnSpinner {
   width: 15px;
   height: 15px;

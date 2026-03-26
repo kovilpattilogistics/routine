@@ -1,11 +1,10 @@
 .container {
-  background: #252525;
-  border-radius: 16px;
+  background: #FFFFFF;
+  border-radius: 12px;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  border: 1px solid #333;
+  border: 1px solid #EDEDEB;
   margin-top: 8px;
 }
 
@@ -33,14 +32,14 @@
   cursor: pointer;
 }
 
-.activeEmoji { background: rgba(255,255,255,0.05); border-color: #444; }
+.activeEmoji { background: #F1F1EF; border-color: #EDEDEB; }
 
 .input {
   flex: 1;
   background: transparent;
   border: none;
-  border-bottom: 2px solid #333;
-  color: #fff;
+  border-bottom: 2px solid #EDEDEB;
+  color: #37352F;
   font-size: 16px;
   padding: 8px 0;
   outline: none;
@@ -61,17 +60,17 @@
 }
 
 .pill {
-  background: #333;
-  color: #666;
+  background: #F1F1EF;
+  color: #787774;
   border: none;
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
 }
 
-.activePill { background: #22c55e; color: #000; }
+.activePill { background: #22c55e; color: #FFFFFF; }
 
 .daySelector {
   display: flex;
@@ -90,7 +89,7 @@
   cursor: pointer;
 }
 
-.activeDay { background: #fff; color: #000; border-color: #fff; }
+.activeDay { background: #37352F; color: #FFFFFF; border-color: #37352F; }
 
 .actions {
   display: flex;
@@ -101,17 +100,17 @@
 .saveBtn {
   background: #22c55e;
   border: none;
-  color: #000;
+  color: #FFFFFF;
   font-weight: 700;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .cancelBtn {
   background: transparent;
   border: none;
-  color: #666;
+  color: #787774;
   font-weight: 600;
   cursor: pointer;
 }

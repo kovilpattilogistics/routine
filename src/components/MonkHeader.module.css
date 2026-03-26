@@ -11,6 +11,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pastDataBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #F7F7F5;
+  border: 1px solid #EDEDEB;
+  border-radius: 8px;
+  color: #787774;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pastDataBtn:hover {
+  background: #EDEDEB;
+  color: #37352F;
+  transform: translateY(-1px);
+}
+
+.pastDataBtn svg {
+  opacity: 0.7;
 }
 
 .userInfo {
@@ -79,4 +115,11 @@
   color: var(--text-muted);
   text-align: right;
   margin-top: 4px;
+}
+
+@media (max-width: 400px) {
+  .headerWrap { padding: 12px 16px; gap: 8px; }
+  .name { font-size: 14px; }
+  .avatar { width: 36px; height: 36px; }
+  .xpNumber { font-size: 12px; }
 }

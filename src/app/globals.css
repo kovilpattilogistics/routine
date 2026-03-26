@@ -1,26 +1,26 @@
 :root {
-  /* Moody Dark Theme (from image) */
-  --background: #0F0F0F;
-  --foreground: #FFFFFF;
+  /* Notion Light Aesthetic */
+  --background: #FFFFFF;
+  --foreground: #37352F;
   
-  --card-bg: rgba(255, 255, 255, 0.03);
-  --card-border: rgba(255, 255, 255, 0.1);
+  --card-bg: #F7F7F5;
+  --card-border: #EEEEEC;
   
-  --text-primary: #FFFFFF;
-  --text-muted: rgba(255, 255, 255, 0.55);
-  --text-faint: rgba(255, 255, 255, 0.35);
+  --text-primary: #37352F;
+  --text-muted: #787774;
+  --text-faint: #ACABA9;
   
-  /* Accents */
+  /* Accents (Softer / Pastels for Light Mode) */
   --accent-gold: #FACC15;
-  --accent-green-start: #22c55e;
-  --accent-green-end: #10b981;
+  --accent-green-start: #DAF0E3;
+  --accent-green-end: #C5E9D6;
 
-  --cell-empty: rgba(255, 255, 255, 0.05);
-  --cell-missed: rgba(239, 68, 68, 0.15);
+  --cell-empty: #F1F1EF;
+  --cell-missed: #FFE2E5;
 
   --radius-lg: 24px;
   --radius-md: 16px;
-  --radius-sm: 10px;
+  --radius-sm: 8px;
 }
 
 body {

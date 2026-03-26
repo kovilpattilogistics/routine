@@ -7,14 +7,51 @@ import styles from "./AddHabitInline.module.css";
 interface AddHabitInlineProps {
   onSave: (data: { name: string, emoji: string, frequency: string, customDays: string[] }) => void;
   onCancel: () => void;
+  groupName?: string;
 }
 
-const EMOJIS = ["🧘", "🚿", "💧", "☕", "🍎", "🏃", "📚", "✍️", "🎹", "💻", "🧹", "🪴", "😴", "🧠", "🔥", "✅"];
+const EMOJI_PACKAGES: Record<string, string[]> = {
+  fitness: ["🏃", "🏋️", "🧘", "🏊", "🚴", "🥊", "⚽", "🏀", "🧗", "🛹"],
+  work: ["💻", "📚", "✍️", "📧", "🗓️", "💡", "💼", "📉", "🎯", "🧠"],
+  health: ["🍎", "🥗", "💧", "💊", "☕", "🥦", "🥑", "🍳", "🥩", "🍼"],
+  mind: ["🧠", "🕯️", "✨", "🕊️", "🌙", "☀️", "🍃", "🌊", "💆", "🧿"],
+  hobby: ["🎹", "🎨", "🎮", "🎸", "📷", "🎤", "🧶", "🕺", "🍿", "🧩"],
+  home: ["🧹", "🪴", "😴", "🛀", "🧺", "🍳", "🏠", "🧸", "🪞", "👠"],
+  default: ["🧘", "🚿", "💧", "🍎", "🏃", "📚", "✍️", "🎹", "💻", "🧹", "🪴", "😴", "🧠", "🔥", "✅", "✨"]
+};
+
+const CATEGORY_MAP: Record<string, string> = {
+  gym: "fitness", workout: "fitness", run: "fitness", fitness: "fitness", exercise: "fitness", sport: "fitness", lift: "fitness",
+  study: "work", code: "work", work: "work", read: "work", writing: "work", write: "work", learn: "work", task: "work",
+  eat: "health", food: "health", water: "health", fruit: "health", diet: "health", drink: "health", sleep: "health",
+  meditate: "mind", breath: "mind", focus: "mind", zen: "mind", yoga: "mind",
+  music: "hobby", play: "hobby", draw: "hobby", game: "hobby", hobby: "hobby",
+  clean: "home", house: "home", garden: "home", plant: "home", laundry: "home", kitchen: "home"
+};
+
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-export function AddHabitInline({ onSave, onCancel }: AddHabitInlineProps) {
+export function AddHabitInline({ onSave, onCancel, groupName = "" }: AddHabitInlineProps) {
   const [name, setName] = useState("");
-  const [selectedEmoji, setSelectedEmoji] = useState(EMOJIS[0]);
+  
+  const getContextualEmojis = () => {
+    const input = (name + " " + groupName).toLowerCase();
+    for (const [kw, cat] of Object.entries(CATEGORY_MAP)) {
+      if (input.includes(kw)) return EMOJI_PACKAGES[cat];
+    }
+    return EMOJI_PACKAGES.default;
+  };
+
+  const currentEmojis = getContextualEmojis();
+  const [selectedEmoji, setSelectedEmoji] = useState(currentEmojis[0]);
+
+  // Sync selected emoji when the package changes if it's not in the new package
+  React.useEffect(() => {
+    if (!currentEmojis.includes(selectedEmoji)) {
+      setSelectedEmoji(currentEmojis[0]);
+    }
+  }, [currentEmojis, selectedEmoji]);
+
   const [frequency, setFrequency] = useState("daily"); // daily, weekdays, custom
   const [customDays, setCustomDays] = useState<string[]>(DAYS);
 
@@ -39,7 +76,7 @@ export function AddHabitInline({ onSave, onCancel }: AddHabitInlineProps) {
     >
       <div className={styles.topRow}>
         <div className={styles.emojiPicker}>
-          {EMOJIS.slice(0, 8).map(e => (
+          {currentEmojis.slice(0, 8).map(e => (
             <button 
               key={e} 
               className={`${styles.emojiBtn} ${selectedEmoji === e ? styles.activeEmoji : ""}`}

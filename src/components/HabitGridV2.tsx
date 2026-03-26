@@ -12,9 +12,10 @@ interface HabitGridV2Props {
   onToggle: (habitId: string, dateStr: string, isCompleted: boolean, intensity: number) => void;
   onHabitClick: (habit: Habit) => void;
   onLongPressCell: (habitId: string, dateStr: string) => void;
+  baseDate?: Date;
 }
 
-export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }: HabitGridV2Props) {
+export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, baseDate = new Date() }: HabitGridV2Props) {
   const [items, setItems] = useState(habits);
 
   // Sync internal state when props change
@@ -25,10 +26,11 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
   const todayStr = new Date().toISOString().split("T")[0];
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
-  // 9-day rolling window: 3 past, Today (4th), 5 future
-  const daysToRender = Array.from({ length: 9 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - 3 + i); 
+  // Balanced 31-day window: 15 past, Center (Today/Base), 15 future
+  const daysToRender = Array.from({ length: 31 }).map((_, i) => {
+    const d = new Date(baseDate);
+    d.setHours(0, 0, 0, 0); // Normalize to midnight
+    d.setDate(d.getDate() - 15 + i); 
     return d.toISOString().split("T")[0];
   });
 
@@ -37,14 +39,12 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
     const date = d.getDate().toString().padStart(2, '0');
     const day = d.toLocaleDateString('en-US', { weekday: 'short' })[0];
     
-    // Compact or Mobile view: "26 T"
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       return `${date} ${day}`;
     }
     
-    // Normal view: "26/03 - T"
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    return `${date}/${month} - ${day}`;
+    const month = d.toLocaleDateString('en-US', { month: 'short' });
+    return `${date} ${month} ${day}`;
   };
 
   const handleReorder = (newItems: Habit[]) => {
@@ -138,6 +138,26 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
     });
   };
 
+  const getStreakAtDate = (habit: Habit, dateStr: string) => {
+    if (habit.completedDays?.[dateStr] !== 1 && habit.completedDays?.[dateStr] !== 2) return 0;
+    
+    let streak = 0;
+    let current = new Date(dateStr);
+    
+    for (let i = 0; i < 365; i++) {
+      const s = current.toISOString().split("T")[0];
+      const intensity = habit.completedDays?.[s] || 0;
+      
+      if (intensity === 1 || intensity === 2) {
+        streak++;
+        current.setDate(current.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
   return (
     <Reorder.Item 
       value={habit} 
@@ -183,6 +203,7 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
           const isDone = intensity === 1;
           const isExceeded = intensity === 2;
           const isMissed = !intensity && day < todayStr;
+          const cellStreak = (isDone || isExceeded) ? getStreakAtDate(habit, day) : 0;
 
           return (
             <div 
@@ -202,6 +223,11 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
                 onLongPressCell(habit.id, day);
               }}
             >
+              {cellStreak > 0 && (
+                <span className={styles.cellStreak}>
+                  {cellStreak}
+                </span>
+              )}
               {isDone && <div className={styles.ripple} />}
             </div>
           );

@@ -1,0 +1,135 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border: 1px solid #EDEDEB;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #37352F;
+  letter-spacing: -0.02em;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #787774;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.1s;
+}
+
+.closeBtn:hover { color: #37352F; }
+
+.description {
+  font-size: 14px;
+  color: #787774;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.selectors {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #787774;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.select {
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #EDEDEB;
+  border-radius: 12px;
+  background: #F7F7F5;
+  color: #37352F;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23787774' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all 0.2s;
+}
+
+.select:hover { border-color: #D3D1CB; }
+.select:focus { border-color: #37352F; background: #FFFFFF; }
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.resetBtn {
+  flex: 1;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #787774;
+  background: #F7F7F5;
+  border: 1px solid #EDEDEB;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.resetBtn:hover { background: #EDEDEB; color: #37352F; }
+
+.applyBtn {
+  flex: 1.5;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #37352F;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.applyBtn:hover { background: #000000; transform: translateY(-1px); }
+.applyBtn:active { transform: translateY(0); }
+
+@media (max-width: 480px) {
+  .modal { padding: 24px; border-radius: 24px 24px 0 0; position: absolute; bottom: 0; }
+  .overlay { align-items: flex-end; padding: 0; }
+}

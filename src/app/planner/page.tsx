@@ -16,6 +16,7 @@ import { AddHabitInline } from "@/components/AddHabitInline";
 import { CellDetailsModal } from "@/components/CellDetailsModal";
 import { AIInsightCard } from "@/components/AIInsightCard";
 import { MonkHabitSheet } from "@/components/MonkHabitSheet";
+import { PastDataModal } from "@/components/PastDataModal";
 
 import styles from "./planner.module.css";
 import { AnimatePresence, motion } from "framer-motion";
@@ -36,6 +37,8 @@ export default function PlannerPage() {
   const [cellModalData, setCellModalData] = useState<{ habitId: string; dateStr: string; habitName: string } | null>(null);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [latestAction, setLatestAction] = useState<string | undefined>(undefined);
+  const [baseDate, setBaseDate] = useState(new Date());
+  const [isPastDataModalOpen, setIsPastDataModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.replace("/login");
@@ -107,7 +110,23 @@ export default function PlannerPage() {
 
   return (
     <div className={styles.v2Container}>
-      <MonkHeader profile={profile} uid={user.uid} />
+      <MonkHeader 
+        profile={profile} 
+        uid={user.uid} 
+        onPastDataClick={() => setIsPastDataModalOpen(true)}
+      />
+
+      {isPastDataModalOpen && (
+        <PastDataModal 
+          isOpen={isPastDataModalOpen}
+          onClose={() => setIsPastDataModalOpen(false)}
+          onSelect={(date: Date) => {
+            setBaseDate(date);
+            setIsPastDataModalOpen(false);
+          }}
+          currentDate={baseDate}
+        />
+      )}
 
       <main className={styles.v2Main}>
         {/* AI Insight (Retained from v1) */}
@@ -134,6 +153,7 @@ export default function PlannerPage() {
                     const h = habits.find(h => h.id === habitId);
                     if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
                   }}
+                  baseDate={baseDate}
                 />
 
                 {!isAddHabitOpen ? (
@@ -144,6 +164,7 @@ export default function PlannerPage() {
                   <AddHabitInline 
                     onSave={handleAddHabit} 
                     onCancel={() => setIsAddHabitOpen(false)} 
+                    groupName={activeGroup?.name}
                   />
                 )}
               </div>
@@ -191,14 +212,15 @@ export default function PlannerPage() {
       {/* CSS Variables Injector for Theme Colors */}
       <style jsx global>{`
         :root {
-          --theme-red: #ef4444;
-          --theme-blue: #3b82f6;
-          --theme-green: #22c55e;
-          --theme-purple: #a855f7;
-          --theme-orange: #f97316;
-          --theme-pink: #ec4899;
-          --theme-teal: #14b8a6;
-          --theme-gold: #facc15;
+          /* Notion Light Pastel Tokens */
+          --theme-red: #FFE2E5;
+          --theme-blue: #E1F0FF;
+          --theme-green: #DAF0E3;
+          --theme-purple: #E8DEEE;
+          --theme-orange: #FDECC8;
+          --theme-pink: #F5E0E9;
+          --theme-teal: #DDF3F1;
+          --theme-gold: #FBF3DB;
         }
       `}</style>
     </div>
