@@ -1,0 +1,182 @@
+.gridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.habitMetaSpace {
+  width: 140px;
+}
+
+.daysStrip {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+}
+
+.dayLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: #444;
+  text-transform: uppercase;
+}
+
+.dayLabel.today {
+  color: #fff;
+}
+
+.habitList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.habitRow {
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: grab;
+}
+
+.habitRow:active { cursor: grabbing; }
+
+.habitMeta {
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.habitTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emoji { font-size: 20px; }
+.name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xpBar {
+  width: 100%;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.xpFill {
+  height: 100%;
+  background: #22c55e; /* Or theme color */
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.cellsRow {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  gap: 4px;
+}
+
+.cell {
+  width: 32px;
+  height: 32px;
+  background: #252525;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .cell { width: 44px; height: 44px; }
+}
+
+.cell.future {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.cell.done {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+.cell.exceeded {
+  background: linear-gradient(135deg, #FFC107, #F59E0B);
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+}
+
+.cell.missed {
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.streakArea {
+  min-width: 60px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 800;
+  color: #f97316;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.brokenEmoji {
+  font-size: 16px;
+  animation: fadeIn 3s forwards;
+}
+
+.empathyMsg {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  font-size: 9px;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  margin-top: 4px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ripple {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: inherit;
+  animation: rippleAnim 0.4s ease-out forwards;
+}
+
+@keyframes rippleAnim {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}

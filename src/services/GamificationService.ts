@@ -10,8 +10,9 @@ export const LEVEL_THRESHOLDS = [
 
 export const XP_REWARDS = {
   HABIT_COMPLETION: 10,
-  EXCEEDED_GOAL: 20,       // Double tap (Prompt specifies 20XP for exceeded in general rules)
-  PERFECT_DAY: 25,         // All habits in a day
+  EXCEEDED_GOAL: 20,
+  GROUP_COMPLETE: 25,       // New: All habits in a group
+  FULL_DAY_COMPLETE: 75,    // New: ALL habits across ALL groups
   STREAK_7_DAY: 50,
   STREAK_30_DAY: 150,
 };

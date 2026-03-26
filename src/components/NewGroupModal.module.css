@@ -1,0 +1,117 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: #1a1a1a;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.field input {
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+}
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.emojiBtn {
+  aspect-ratio: 1;
+  background: #252525;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.emojiBtn:hover { background: #333; }
+.emojiBtn.active { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+.colorBtn {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+}
+
+.colorBtn.activeColor { border-color: #fff; scale: 1.1; }
+
+.bg_red { background: #ef4444; }
+.bg_blue { background: #3b82f6; }
+.bg_green { background: #22c55e; }
+.bg_purple { background: #a855f7; }
+.bg_orange { background: #f97316; }
+.bg_pink { background: #ec4899; }
+.bg_teal { background: #14b8a6; }
+.bg_gold { background: #facc15; }
+
+.saveBtn {
+  background: #22c55e;
+  color: #000;
+  font-weight: 700;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); }
+.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }

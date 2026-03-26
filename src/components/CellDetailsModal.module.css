@@ -1,0 +1,144 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+@media (min-width: 768px) {
+  .overlay { align-items: center; }
+}
+
+.modal {
+  background: #1a1a1a;
+  width: 100%;
+  max-width: 500px;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  padding: 24px;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .modal { border-radius: 24px; }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.dragHandle {
+  width: 40px;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+
+.title { font-size: 20px; font-weight: 800; color: #fff; margin: 0; }
+.subtitle { font-size: 13px; color: #666; font-weight: 600; }
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field textarea {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 16px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  resize: none;
+}
+
+.moodGrid {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.moodBtn {
+  flex: 1;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.moodBtn:hover { background: #282828; }
+.activeMood { background: #333; border-color: #fff; transform: translateY(-2px); }
+
+.photoPlaceholder {
+  background: #111;
+  border: 2px dashed #222;
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #444;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.saveBtn {
+  flex: 2;
+  background: #22c55e;
+  border: none;
+  color: #000;
+  font-weight: 700;
+  padding: 16px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.ghostBtn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #333;
+  color: #666;
+  font-weight: 600;
+  padding: 16px;
+  border-radius: 16px;
+  cursor: pointer;
+}

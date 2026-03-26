@@ -42,13 +42,16 @@ export default function RegisterPage() {
       const u = await AuthService.getInstance().register(email, password);
       // Save initial profile, then go to onboarding for the rest
       try {
-        await DatabaseService.getInstance().createUserProfile(u.uid, {
+        const db = DatabaseService.getInstance();
+        await db.createUserProfile(u.uid, {
           name: name.trim(),
           email,
           onboardingComplete: false,
         });
+        // Initialize v2 Default Groups
+        await db.initDefaultGroups(u.uid);
       } catch (e) {
-        console.error("Initial profile save failed:", e);
+        console.error("Initial profile/group save failed:", e);
       }
       router.push("/onboarding");
     } catch (err: any) {

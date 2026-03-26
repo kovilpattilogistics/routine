@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { HabitProvider } from "@/context/HabitContext";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,7 +27,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
-          {children}
+          <HabitProvider>
+            {children}
+          </HabitProvider>
         </AuthProvider>
       </body>
     </html>

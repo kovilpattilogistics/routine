@@ -6,6 +6,16 @@ import {
 
 const db = firebaseDb as Firestore;
 
+export interface Group {
+  id: string;
+  name: string;
+  emoji: string;
+  themeColor: 'red' | 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'teal' | 'gold';
+  sortOrder: number;
+  isDeleted: boolean;
+  createdAt: Timestamp;
+}
+
 export interface UserProfile {
   name: string;
   email?: string;
@@ -22,6 +32,7 @@ export interface UserProfile {
   totalXP?: number;
   currentLevel?: number;
   badges?: string[];
+  createdAt?: Timestamp;
 }
 
 export interface HabitEntry {
@@ -36,16 +47,18 @@ export interface HabitEntry {
 export interface Habit {
   id: string;
   name: string;
-  category?: string;
-  // MonkGrid Additions
+  groupId: string; // New: association with parent group
   emoji?: string;
+  frequency: 'daily' | 'weekdays' | 'custom';
+  customDays?: string[]; // ['Mon', 'Wed']
   createdAt?: Timestamp;
   currentStreak?: number;
   bestStreak?: number;
   totalCompletions?: number;
+  sortOrder: number;
   
-  // Denormalized purely for client-side Grid fast rendering without causing 100s of reads
-  completedDays?: Record<string, boolean | number>; 
+  // Denormalized summary for fast Grid loading
+  completedDays?: Record<string, number | null>; 
 }
 
 export class DatabaseService {
@@ -97,18 +110,74 @@ export class DatabaseService {
 
   // ── HABITS & ENTRIES ─────────────────────────────────────
 
-  async getHabits(userId: string): Promise<Habit[]> {
-    const q = query(collection(db, "users", userId, "habits"));
+  // ── GROUPS ────────────────────────────────────────────────
+  
+  async getGroups(userId: string): Promise<Group[]> {
+    const q = query(
+      collection(db, "users", userId, "groups"), 
+      where("isDeleted", "==", false)
+    );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Habit));
+    return snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() } as Group))
+      .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  async addHabit(userId: string, habit: Habit) {
-    const habitRef = doc(db, "users", userId, "habits", habit.id);
+  async addGroup(userId: string, group: Group) {
+    const groupRef = doc(db, "users", userId, "groups", group.id);
+    await setDoc(groupRef, { ...group, createdAt: Timestamp.now() });
+  }
+
+  async updateGroup(userId: string, groupId: string, data: Partial<Group>) {
+    const groupRef = doc(db, "users", userId, "groups", groupId);
+    await updateDoc(groupRef, data as any);
+  }
+
+  async deleteGroup(userId: string, groupId: string) {
+    const groupRef = doc(db, "users", userId, "groups", groupId);
+    await updateDoc(groupRef, { isDeleted: true });
+  }
+
+  async initDefaultGroups(userId: string) {
+    const defaults: Omit<Group, 'id'>[] = [
+      { name: "Gym", emoji: "💪", themeColor: "red", sortOrder: 0, isDeleted: false, createdAt: Timestamp.now() },
+      { name: "Supplements", emoji: "💊", themeColor: "blue", sortOrder: 1, isDeleted: false, createdAt: Timestamp.now() },
+      { name: "Food Habits", emoji: "🥗", themeColor: "green", sortOrder: 2, isDeleted: false, createdAt: Timestamp.now() },
+      { name: "Skin & Hair", emoji: "🧴", themeColor: "purple", sortOrder: 3, isDeleted: false, createdAt: Timestamp.now() }
+    ];
+
+    const batch = writeBatch(db);
+    for (const d of defaults) {
+      const gId = `${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+      const gRef = doc(db, "users", userId, "groups", gId);
+      batch.set(gRef, { ...d, id: gId });
+      
+      // Add 2 placeholder habits per group
+      const h1Id = `h1-${gId}`;
+      const h1Ref = doc(db, "users", userId, "groups", gId, "habits", h1Id);
+      batch.set(h1Ref, {
+        id: h1Id, name: `Sample ${d.name} 1`, groupId: gId, emoji: d.emoji,
+        frequency: 'daily', sortOrder: 0, currentStreak: 0, bestStreak: 0,
+        totalCompletions: 0, completedDays: {}, createdAt: Timestamp.now()
+      });
+    }
+    await batch.commit();
+  }
+
+  // ── HABITS & ENTRIES ─────────────────────────────────────
+
+  async getHabits(userId: string, groupId: string): Promise<Habit[]> {
+    const q = query(collection(db, "users", userId, "groups", groupId, "habits"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() } as Habit))
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  async addHabit(userId: string, groupId: string, habit: Habit) {
+    const habitRef = doc(db, "users", userId, "groups", groupId, "habits", habit.id);
     await setDoc(habitRef, {
-      name: habit.name,
-      emoji: habit.emoji || "🔥",
-      category: habit.category || "General",
+      ...habit,
       createdAt: Timestamp.now(),
       currentStreak: 0,
       bestStreak: 0,
@@ -117,24 +186,20 @@ export class DatabaseService {
     });
   }
 
-  async deleteHabit(userId: string, habitId: string) {
-    await deleteDoc(doc(db, "users", userId, "habits", habitId));
+  async deleteHabit(userId: string, groupId: string, habitId: string) {
+    await deleteDoc(doc(db, "users", userId, "groups", groupId, "habits", habitId));
   }
 
-  /**
-   * Complex toggle: writes to the deep subcollection AND updates the denormalized grid cache.
-   */
   async toggleHabitEntry(
     userId: string, 
+    groupId: string,
     habitId: string, 
     dateStr: string, 
     isCompleted: boolean, 
     intensity: number = 1
   ) {
     const batch = writeBatch(db);
-    
-    // 1. The deep subcollection entry
-    const entryRef = doc(db, "users", userId, "habits", habitId, "entries", dateStr);
+    const entryRef = doc(db, "users", userId, "groups", groupId, "habits", habitId, "entries", dateStr);
     
     if (isCompleted) {
       batch.set(entryRef, {
@@ -143,11 +208,10 @@ export class DatabaseService {
         completedAt: Timestamp.now(),
       }, { merge: true });
     } else {
-      batch.delete(entryRef); // Erase if unmarked
+      batch.delete(entryRef);
     }
 
-    // 2. The denormalized summary on the Habit doc for fast Grid loading
-    const habitRef = doc(db, "users", userId, "habits", habitId);
+    const habitRef = doc(db, "users", userId, "groups", groupId, "habits", habitId);
     batch.update(habitRef, {
       [`completedDays.${dateStr}`]: isCompleted ? intensity : null,
       totalCompletions: increment(isCompleted ? 1 : -1)
@@ -161,11 +225,12 @@ export class DatabaseService {
    */
   async updateHabitEntryDetails(
     userId: string, 
+    groupId: string,
     habitId: string, 
     dateStr: string, 
     details: Partial<HabitEntry>
   ) {
-    const entryRef = doc(db, "users", userId, "habits", habitId, "entries", dateStr);
+    const entryRef = doc(db, "users", userId, "groups", groupId, "habits", habitId, "entries", dateStr);
     await setDoc(entryRef, details, { merge: true });
   }
 }
