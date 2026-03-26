@@ -61,8 +61,27 @@ Analyze the above and provide your JSON response:
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     
-    // Parse it safely to ensure it's valid JSON before returning
-    const parsedJson = JSON.parse(text.trim());
+    // Robust JSON extraction (Gemini sometimes wraps in markdown blocks)
+    let cleanedText = text.trim();
+    if (cleanedText.startsWith("```json")) {
+      cleanedText = cleanedText.replace(/^```json/, "").replace(/```$/, "").trim();
+    } else if (cleanedText.startsWith("```")) {
+      cleanedText = cleanedText.replace(/^```/, "").replace(/```$/, "").trim();
+    }
+    
+    let parsedJson;
+    try {
+      parsedJson = JSON.parse(cleanedText);
+    } catch (e) {
+      // Final attempt: look for first { and last }
+      const firstBrace = cleanedText.indexOf("{");
+      const lastBrace = cleanedText.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        parsedJson = JSON.parse(cleanedText.substring(firstBrace, lastBrace + 1));
+      } else {
+        throw new Error("Invalid JSON structure from AI");
+      }
+    }
 
     return NextResponse.json({ data: parsedJson });
   } catch (error: any) {

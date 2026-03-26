@@ -125,7 +125,9 @@ export default function PlannerPage() {
             setIsPastDataModalOpen(false);
           }}
           currentDate={baseDate}
-          minDate={profile.createdAt?.toDate() || new Date()}
+          minDate={profile.createdAt && typeof (profile.createdAt as any).toDate === 'function' 
+            ? (profile.createdAt as any).toDate() 
+            : (profile.createdAt instanceof Date ? profile.createdAt : new Date())}
         />
       )}
 

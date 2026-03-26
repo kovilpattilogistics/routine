@@ -9,6 +9,7 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   min-height: 80px;
+  margin-bottom: 24px;
 }
 
 .closeBtn {
