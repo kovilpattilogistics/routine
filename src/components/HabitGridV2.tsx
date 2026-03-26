@@ -25,17 +25,12 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
   const todayStr = new Date().toISOString().split("T")[0];
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
-  const daysToRender = isMobile 
-    ? Array.from({ length: 7 }).map((_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - 3 + i); // Center today
-        return d.toISOString().split("T")[0];
-      })
-    : Array.from({ length: 31 }).map((_, i) => {
-        const d = new Date();
-        d.setDate(1 + i); // Full month
-        return d.toISOString().split("T")[0];
-      });
+  // 9-day rolling window: 3 past, Today (4th), 5 future
+  const daysToRender = Array.from({ length: 9 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - 3 + i); 
+    return d.toISOString().split("T")[0];
+  });
 
   const getDayLabel = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -106,7 +101,7 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
   }, [habit.completedDays, todayStr, habit.currentStreak]);
 
   const handleCellClick = (dateStr: string, currentIntensity: number) => {
-    if (dateStr > todayStr) return; // Non-interactive future
+    if (dateStr !== todayStr) return; // Strict: Only allow today's edits
 
     const isCompleted = currentIntensity === 0;
     const newIntensity = isCompleted ? 1 : 0;
@@ -126,7 +121,7 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
   };
 
   const handleCellDoubleClick = (dateStr: string) => {
-    if (dateStr > todayStr) return;
+    if (dateStr !== todayStr) return; // Strict: Only today
     onToggle(habit.id, dateStr, true, 2); // Exceeded
     confetti({
       particleCount: 20,
