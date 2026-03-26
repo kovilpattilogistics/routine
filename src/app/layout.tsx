@@ -11,14 +11,19 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Routine Tracker",
   description: "A minimalist routine tracker",
+  manifest: "/manifest.json",
   icons: {
     icon: "/icon.png",
-    apple: "/apple-icon.png",
+    apple: "/logo-192.png",
   },
+  themeColor: "#ffffff",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Routine Tracker",
+    title: "Routine",
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 
