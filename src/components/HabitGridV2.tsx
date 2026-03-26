@@ -35,8 +35,15 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
   const getDayLabel = (dateStr: string) => {
     const d = new Date(dateStr);
     const date = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
     const day = d.toLocaleDateString('en-US', { weekday: 'short' })[0];
+    
+    // Compact or Mobile view: "26 T"
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return `${date} ${day}`;
+    }
+    
+    // Normal view: "26/03 - T"
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
     return `${date}/${month} - ${day}`;
   };
 
@@ -48,7 +55,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
   return (
     <div className={styles.gridContainer}>
       <div className={styles.headerRow}>
-        <div />
+        <div className={styles.headerSpacer} />
         <div className={styles.daysStrip}>
           {daysToRender.map(day => (
             <div key={day} className={`${styles.dayLabel} ${day === todayStr ? styles.today : ""}`}>
@@ -56,6 +63,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
             </div>
           ))}
         </div>
+        <div className={styles.headerSpacer} />
       </div>
 
       <Reorder.Group axis="y" values={items} onReorder={handleReorder} className={styles.habitList}>
