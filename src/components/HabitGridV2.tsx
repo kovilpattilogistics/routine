@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, Reorder, AnimatePresence } from "framer-motion";
 import { Habit, HabitEntry } from "@/services/DatabaseService";
 import { useHabits } from "@/context/HabitContext";
@@ -17,11 +17,27 @@ interface HabitGridV2Props {
 
 export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, baseDate = new Date() }: HabitGridV2Props) {
   const [items, setItems] = useState(habits);
+  const todayRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Sync internal state when props change
   React.useEffect(() => {
     setItems(habits);
   }, [habits]);
+
+  // Center Today on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (todayRef.current) {
+        todayRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }, 300); // Small delay to ensure layout is ready
+    return () => clearTimeout(timer);
+  }, []);
 
   const todayStr = new Date().toISOString().split("T")[0];
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
@@ -58,7 +74,11 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, b
         <div className={styles.headerSpacer} />
         <div className={styles.daysStrip}>
           {daysToRender.map(day => (
-            <div key={day} className={`${styles.dayLabel} ${day === todayStr ? styles.today : ""}`}>
+            <div 
+              key={day} 
+              ref={day === todayStr ? todayRef : null}
+              className={`${styles.dayLabel} ${day === todayStr ? styles.today : ""}`}
+            >
               {getDayLabel(day)}
             </div>
           ))}
