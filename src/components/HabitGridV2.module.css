@@ -2,15 +2,40 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0 8px;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px; /* Room for scrollbar if any */
+  -webkit-overflow-scrolling: touch;
+}
+
+.gridContainer::-webkit-scrollbar {
+  height: 4px;
+}
+
+.gridContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.gridContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .headerRow, .habitRow {
   display: grid;
-  grid-template-columns: 80px 1fr 40px;
+  grid-template-columns: 80px 480px 40px; /* FIXED WIDTHS for scroll */
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  min-width: 612px; /* 80 + 480 + 40 + gaps */
   box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .headerRow, .habitRow {
+    grid-template-columns: 140px 1fr 50px;
+    min-width: 100%;
+    gap: 16px;
+  }
 }
 
 .headerRow {
@@ -28,24 +53,29 @@
 .daysStrip, .cellsRow {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  gap: 4px;
+  gap: 8px;
   align-items: center;
 }
 
 .dayLabel {
-  font-size: 6.5px;
+  font-size: 8px;
   font-weight: 800;
-  color: #555;
+  color: #666;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
-  padding: 3px 0;
-  border-radius: 6px;
+  padding: 6px 0;
+  border-radius: 8px;
   transition: all 0.2s;
 }
 
 .headerSpacer {
   width: 100%;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: #0d0d12;
+  height: 24px;
 }
 
 @media (min-width: 768px) {
@@ -83,6 +113,11 @@
   gap: 4px;
   cursor: pointer;
   overflow: hidden;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: #15151a; /* Match groupRowWrapper background */
+  padding-right: 8px;
 }
 
 .habitTitleRow {
@@ -112,7 +147,7 @@
 .cell {
   aspect-ratio: 1;
   width: 100%;
-  max-width: 32px;
+  max-width: 36px;
   margin: 0 auto;
   background: #18181b;
   border-radius: 50%;
