@@ -37,9 +37,12 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
         return d.toISOString().split("T")[0];
       });
 
-  const getDayName = (dateStr: string) => {
+  const getDayLabel = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('en-US', { weekday: 'short' });
+    const date = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.toLocaleDateString('en-US', { weekday: 'short' })[0];
+    return `${date}/${month} - ${day}`;
   };
 
   const handleReorder = (newItems: Habit[]) => {
@@ -54,7 +57,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell }:
         <div className={styles.daysStrip}>
           {daysToRender.map(day => (
             <div key={day} className={`${styles.dayLabel} ${day === todayStr ? styles.today : ""}`}>
-              {getDayName(day)[0]}
+              {getDayLabel(day)}
             </div>
           ))}
         </div>

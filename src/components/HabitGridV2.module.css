@@ -12,20 +12,23 @@
 }
 
 .habitMetaSpace {
-  width: 140px;
+  width: 120px;
 }
 
 .daysStrip {
   flex: 1;
   display: flex;
   justify-content: space-around;
+  gap: 8px;
 }
 
 .dayLabel {
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 800;
   color: #444;
   text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .dayLabel.today {
@@ -54,7 +57,7 @@
 .habitRow:active { cursor: grabbing; }
 
 .habitMeta {
-  width: 140px;
+  width: 120px;
   display: flex;
   flex-direction: column;
   gap: 6px;

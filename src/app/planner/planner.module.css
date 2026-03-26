@@ -25,36 +25,11 @@
   margin: 0 auto;
 }
 
-.gridSection {
+.accordionGridWrap {
   padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.groupHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  padding-bottom: 8px;
-  border-bottom: 2px solid transparent;
-}
-
-.groupEmoji { font-size: 24px; }
-.groupName {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  margin: 0;
-}
-
-.accentBar {
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 40px;
-  height: 2px;
+  gap: 20px;
 }
 
 .addHabitBtn {

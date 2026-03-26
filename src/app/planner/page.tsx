@@ -8,7 +8,7 @@ import { DatabaseService, UserProfile, Group, Habit } from "@/services/DatabaseS
 import { GamificationService, XP_REWARDS } from "@/services/GamificationService";
 
 // v2 Components
-import { GroupCarousel } from "@/components/GroupCarousel";
+import { GroupListAccordion } from "@/components/GroupListAccordion";
 import { HabitGridV2 } from "@/components/HabitGridV2";
 import { MonkHeader } from "@/components/MonkHeader";
 import { NewGroupModal } from "@/components/NewGroupModal";
@@ -110,49 +110,46 @@ export default function PlannerPage() {
       <MonkHeader profile={profile!} uid={user.uid} />
 
       <main className={styles.v2Main}>
-        {/* Section 1: Carousel */}
-        <GroupCarousel 
-          groups={groups} 
-          activeGroupId={activeGroupId} 
-          onSelect={setActiveGroupId}
-          onNewGroup={() => setIsNewGroupModalOpen(true)}
-          habits={habits}
-        />
-
         {/* AI Insight (Retained from v1) */}
         {profile && <AIInsightCard profile={profile} habits={habits} latestAction={latestAction} />}
 
-        {/* Section 2: Habit Grid */}
-        <div className={styles.gridSection}>
-          {activeGroup && (
-            <div className={styles.groupHeader} style={{ borderColor: `var(--theme-${activeGroup.themeColor})` }}>
-              <span className={styles.groupEmoji}>{activeGroup.emoji}</span>
-              <h2 className={styles.groupName}>{activeGroup.name}</h2>
-              <div className={styles.accentBar} style={{ backgroundColor: `var(--theme-${activeGroup.themeColor})` }} />
-            </div>
-          )}
+        {/* Section: Vertical Accordion Groups */}
+        <GroupListAccordion 
+          groups={groups}
+          activeGroupId={activeGroupId}
+          onSelect={setActiveGroupId}
+          onNewGroup={() => setIsNewGroupModalOpen(true)}
+          habits={habits}
+          renderGrid={(groupId) => {
+            const groupHabits = habits.filter(h => h.groupId === groupId);
+            const activeGroup = groups.find(g => g.id === groupId);
+            
+            return (
+              <div className={styles.accordionGridWrap}>
+                <HabitGridV2 
+                  habits={groupHabits} 
+                  onToggle={handleToggle}
+                  onHabitClick={setSelectedHabit}
+                  onLongPressCell={(habitId, dateStr) => {
+                    const h = habits.find(h => h.id === habitId);
+                    if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
+                  }}
+                />
 
-          <HabitGridV2 
-            habits={habits} 
-            onToggle={handleToggle}
-            onHabitClick={setSelectedHabit}
-            onLongPressCell={(habitId, dateStr) => {
-              const h = habits.find(h => h.id === habitId);
-              if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
-            }}
-          />
-
-          {!isAddHabitOpen ? (
-            <button className={styles.addHabitBtn} onClick={() => setIsAddHabitOpen(true)}>
-              <span>＋</span> Add Habit to {activeGroup?.name}
-            </button>
-          ) : (
-            <AddHabitInline 
-              onSave={handleAddHabit} 
-              onCancel={() => setIsAddHabitOpen(false)} 
-            />
-          )}
-        </div>
+                {!isAddHabitOpen ? (
+                  <button className={styles.addHabitBtn} onClick={() => setIsAddHabitOpen(true)}>
+                    <span>＋</span> Add Habit to {activeGroup?.name}
+                  </button>
+                ) : (
+                  <AddHabitInline 
+                    onSave={handleAddHabit} 
+                    onCancel={() => setIsAddHabitOpen(false)} 
+                  />
+                )}
+              </div>
+            );
+          }}
+        />
       </main>
 
       {/* Modals */}
