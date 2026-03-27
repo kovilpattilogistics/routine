@@ -82,9 +82,31 @@
 }
 
 .chevron {
-  color: #444;
   display: flex;
   align-items: center;
+}
+
+.deleteGroupBtn {
+  background: transparent;
+  border: none;
+  color: #D3D1CB;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+  opacity: 0;
+}
+
+.groupRow:hover .deleteGroupBtn {
+  opacity: 1;
+}
+
+.deleteGroupBtn:hover {
+  background: #FFE2E5;
+  color: #EB5757;
 }
 
 .gridExpansion {

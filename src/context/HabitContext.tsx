@@ -15,6 +15,7 @@ interface HabitContextType {
   toggleHabit: (habitId: string, dateStr: string, isCompleted: boolean, intensity: number) => Promise<void>;
   addGroup: (name: string, emoji: string, color: Group['themeColor']) => Promise<void>;
   deleteGroup: (groupId: string) => Promise<void>;
+  deleteHabit: (habitId: string) => Promise<void>;
 }
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
@@ -94,6 +95,12 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     await DatabaseService.getInstance().addGroup(user.uid, newGroup);
   };
 
+  const deleteHabit = async (habitId: string) => {
+    if (!user || !activeGroupId) return;
+    setHabits(prev => prev.filter(h => h.id !== habitId));
+    await DatabaseService.getInstance().deleteHabit(user.uid, activeGroupId, habitId);
+  };
+
   const deleteGroup = async (groupId: string) => {
     if (!user) return;
     setGroups(prev => prev.filter(g => g.id !== groupId));
@@ -106,7 +113,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   return (
     <HabitContext.Provider value={{ 
       groups, activeGroupId, setActiveGroupId, habits, loading, 
-      refreshGroups, refreshHabits, toggleHabit, addGroup, deleteGroup 
+      refreshGroups, refreshHabits, toggleHabit, addGroup, deleteGroup, deleteHabit 
     }}>
       {children}
     </HabitContext.Provider>

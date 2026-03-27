@@ -134,6 +134,30 @@
   text-overflow: ellipsis;
   text-decoration: none;
   border-bottom: none;
+  flex: 1;
+}
+
+.deleteHabitBtn {
+  background: transparent;
+  border: none;
+  color: #D3D1CB;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  opacity: 0;
+}
+
+.habitMeta:hover .deleteHabitBtn {
+  opacity: 1;
+}
+
+.deleteHabitBtn:hover {
+  background: #FFE2E5;
+  color: #EB5757;
 }
 
 .xpBar {
