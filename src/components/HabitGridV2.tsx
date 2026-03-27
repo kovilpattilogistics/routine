@@ -84,7 +84,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, b
             </div>
           ))}
         </div>
-        <div className={styles.headerSpacer} />
+        <div className={styles.endSpacer} />
       </div>
 
       <Reorder.Group axis="y" values={items} onReorder={handleReorder} className={styles.habitList}>
@@ -274,12 +274,9 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
             </div>
           );
         })}
+        <div className={styles.endSpacer} />
       </div>
 
-      <div className={styles.streakArea}>
-        🔥 {habit.currentStreak || 0}
-        {isBroken && <span className={styles.brokenEmoji}>😔</span>}
-      </div>
     </Reorder.Item>
   );
 }

@@ -23,17 +23,17 @@
 
 .headerRow, .habitRow {
   display: grid;
-  grid-template-columns: 170px 1488px 50px; /* Further increased for full mobile visibility */
+  grid-template-columns: 170px 1488px 25px; /* Added 25px end spacer */
   align-items: center;
   gap: 12px;
-  min-width: 1660px; 
+  min-width: 1735px; /* Recalculated: 170 + 12 + 1488 + 12 + 25 + 20(padding) + 8(scrollbar room if any) */
   box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .headerRow, .habitRow {
-    grid-template-columns: 180px 1860px 60px; /* Increased from 160px */
-    min-width: 2120px; 
+    grid-template-columns: 180px 1860px 30px; /* Added 30px end spacer */
+    min-width: 2132px; /* Recalculated: 180 + 16 + 1860 + 16 + 30 + 20(padding) + 10(buffer) */
     gap: 16px;
   }
 }
@@ -257,24 +257,13 @@
   justify-content: center;
 }
 
-.missedCross {
-  font-size: 14px;
-  font-weight: 800;
-  color: #DC3545;
-  opacity: 0.8;
+.endSpacer {
+  width: 100%;
+  height: 100%;
 }
 
 .streakArea {
-  width: 50px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 800;
-  color: #f97316;
-  gap: 2px;
+  display: none; /* Removed as per request to move streak to circles */
 }
 
 .empathyMsg {
@@ -297,7 +286,8 @@
   font-weight: 900;
   color: #37352F;
   pointer-events: none;
-  opacity: 1;
+  opacity: 0.9;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8); /* Better contrast against cell colors */
 }
 
 @keyframes fadeIn {
