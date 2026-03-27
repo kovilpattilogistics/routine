@@ -111,7 +111,7 @@
   position: sticky;
   left: 0;
   z-index: 100;
-  background: inherit !important; /* Inheritance helps with block color */
+  background: #FFFFFF !important; /* Default fallback */
   padding: 12px 12px 12px 16px; 
   align-self: stretch;
   border-right: 2px solid #EDEDEB;
@@ -127,11 +127,35 @@
   z-index: -1;
 }
 
+/* Show deletion only on hover to declutter */
+.deleteHabitBtn {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: #9b9a97;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.habitMeta:hover .deleteHabitBtn {
+  opacity: 1;
+}
+
+.deleteHabitBtn:hover {
+  background: #EDEDEB;
+  color: #eb5757;
+}
 
 .habitTitleRow {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  position: relative;
 }
 
 .emoji { font-size: 16px; }
@@ -281,16 +305,16 @@
   0% { transform: scale(0); opacity: 1; }
   100% { transform: scale(3); opacity: 0; }
 }
-/* Theme Tint Classes for Block Effect */
-.theme_red { background-color: rgba(255, 226, 229, 0.4) !important; border-color: #f7d0d4 !important; }
-.theme_blue { background-color: rgba(225, 240, 255, 0.4) !important; border-color: #cadff2 !important; }
-.theme_green { background-color: rgba(218, 240, 227, 0.4) !important; border-color: #c4e1d1 !important; }
-.theme_purple { background-color: rgba(232, 222, 238, 0.4) !important; border-color: #d8c9e0 !important; }
-.theme_orange { background-color: rgba(253, 236, 200, 0.4) !important; border-color: #f7e0b5 !important; }
-.theme_pink { background-color: rgba(245, 224, 233, 0.4) !important; border-color: #e8cad6 !important; }
-.theme_teal { background-color: rgba(221, 243, 241, 0.4) !important; border-color: #c5e3e0 !important; }
-.theme_gold { background-color: rgba(251, 243, 219, 0.4) !important; border-color: #ebe0c5 !important; }
-.theme_default { background-color: rgba(255, 255, 255, 0.015); }
+/* Theme Tint Classes for Block Effect - OPAQUE HEX FOR SOLID WALL */
+.theme_red { background-color: #FFF3F4 !important; border-color: #F7D0D4 !important; }
+.theme_blue { background-color: #F0F8FF !important; border-color: #CADFF2 !important; }
+.theme_green { background-color: #F0FDF4 !important; border-color: #D1FAE5 !important; }
+.theme_purple { background-color: #F5F3FF !important; border-color: #EDE9FE !important; }
+.theme_orange { background-color: #FFF7ED !important; border-color: #FFEDD5 !important; }
+.theme_pink { background-color: #FDF2F8 !important; border-color: #FCE7F3 !important; }
+.theme_teal { background-color: #F0FDFA !important; border-color: #CCFBF1 !important; }
+.theme_gold { background-color: #FEFCE8 !important; border-color: #FEF9C3 !important; }
+.theme_default { background-color: #FFFFFF !important; }
 
 /* Ensure cells in tinted rows keep their punchy look */
 .theme_red .cell:not(.done):not(.exceeded), 

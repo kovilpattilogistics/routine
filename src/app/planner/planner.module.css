@@ -34,53 +34,26 @@
 }
 
 .addHabitBtn {
-  width: 100%;
-  background: rgba(255,255,255,0.03);
-  border: 1px dashed #333;
-  color: #666;
-  padding: 16px;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
+  background: transparent;
+  border: none;
+  color: #9b9a97;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  margin-top: 12px;
+  cursor: pointer;
+  border-radius: 6px;
   transition: all 0.2s;
+  width: fit-content;
 }
 
 .addHabitBtn:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: #444;
-  color: #888;
+  background: #F1F1EF;
+  color: #37352F;
 }
 
 .addHabitBtn span { font-size: 18px; }
 
-.signOutFab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(30,30,35,0.8);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  transition: all 0.2s;
-  z-index: 1000; /* HIGHEST index */
-  backdrop-filter: blur(10px);
-}
-
-.signOutFab:hover {
-  background: #252525;
-  color: #ef4444;
-  border-color: #ef4444;
-  transform: translateY(-2px);
-}
