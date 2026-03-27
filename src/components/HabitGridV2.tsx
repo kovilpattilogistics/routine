@@ -203,8 +203,8 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
     >
       <div className={styles.habitMeta} onClick={() => onHabitClick(habit)}>
         <div className={styles.habitTitleRow}>
-          <span className={styles.emoji}>{habit.emoji}</span>
           <span className={styles.name}>{habit.name}</span>
+          <span className={styles.emoji}>{habit.emoji}</span>
           <button 
             className={styles.deleteHabitBtn}
             onClick={(e) => {
