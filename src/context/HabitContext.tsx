@@ -39,11 +39,13 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   }, [user, activeGroupId]);
 
   const refreshHabits = useCallback(async () => {
-    if (!user || !activeGroupId) return;
+    if (!user || groups.length === 0) return;
     const db = DatabaseService.getInstance();
-    const h = await db.getHabits(user.uid, activeGroupId);
-    setHabits(h);
-  }, [user, activeGroupId]);
+    const habitsPromises = groups.map(group => db.getHabits(user.uid, group.id));
+    const habitsResults = await Promise.all(habitsPromises);
+    const allHabits = habitsResults.flat();
+    setHabits(allHabits);
+  }, [user, groups]);
 
   useEffect(() => {
     refreshGroups();
@@ -51,7 +53,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshHabits();
-  }, [activeGroupId, refreshHabits]);
+  }, [groups, refreshHabits]);
 
   const toggleHabit = async (habitId: string, dateStr: string, isCompleted: boolean, intensity: number) => {
     if (!user || !activeGroupId) return;
