@@ -157,6 +157,7 @@ export default function PlannerPage() {
                     if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
                   }}
                   baseDate={baseDate}
+                  themeColor={activeGroup?.themeColor}
                 />
 
                 {!isAddHabitOpen ? (

@@ -13,9 +13,10 @@ interface HabitGridV2Props {
   onHabitClick: (habit: Habit) => void;
   onLongPressCell: (habitId: string, dateStr: string) => void;
   baseDate?: Date;
+  themeColor?: string;
 }
 
-export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, baseDate = new Date() }: HabitGridV2Props) {
+export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, baseDate = new Date(), themeColor }: HabitGridV2Props) {
   const [items, setItems] = useState(habits);
   const todayRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +98,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, b
               onToggle={onToggle}
               onHabitClick={onHabitClick}
               onLongPressCell={onLongPressCell}
+              themeColor={themeColor}
             />
           ))}
         </AnimatePresence>
@@ -105,7 +107,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, b
   );
 }
 
-function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCell }: any) {
+function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCell, themeColor = "default" }: any) {
   const [isBroken, setIsBroken] = useState(false);
   const [showEmpathy, setShowEmpathy] = useState(false);
   const { deleteHabit } = useHabits();
@@ -182,7 +184,11 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
   return (
     <Reorder.Item 
       value={habit} 
-      className={`${styles.habitRow} ${isBroken ? styles.shake : ""}`}
+      className={`
+        ${styles.habitRow} 
+        ${themeColor ? styles[`theme_${themeColor}`] : ""}
+        ${isBroken ? styles.shake : ""}
+      `}
       initial={{ opacity: 0, y: 10 }}
       animate={{ 
         opacity: 1, 

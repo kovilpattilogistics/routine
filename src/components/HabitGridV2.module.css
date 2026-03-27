@@ -66,10 +66,10 @@
   width: 100%;
   position: sticky;
   left: 0;
-  z-index: 100; /* Higher priority */
-  background: #FFFFFF !important; /* Force opacity */
-  height: 100%;
-  border-right: 2px solid #EDEDEB; /* Thicker to hide gaps */
+  z-index: 101; /* Slightly higher than columns for safe layering */
+  background: #FFFFFF !important;
+  height: 32px; /* Fixed height for consistency */
+  border-right: 2px solid #EDEDEB;
 }
 
 @media (min-width: 768px) {
@@ -111,12 +111,22 @@
   position: sticky;
   left: 0;
   z-index: 100;
-  background: #FFFFFF !important;
-  padding: 10px 12px 10px 16px; 
-  align-self: stretch; /* Cover entire row height without hacks */
+  background: inherit !important; /* Inheritance helps with block color */
+  padding: 12px 12px 12px 16px; 
+  align-self: stretch;
   border-right: 2px solid #EDEDEB;
   box-shadow: 4px 0 10px -5px rgba(0,0,0,0.05);
 }
+
+/* Ensure opaque background inside sticky area even if row is tinted */
+.habitMeta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  z-index: -1;
+}
+
 
 .habitTitleRow {
   display: flex;
@@ -270,4 +280,27 @@
 @keyframes rippleAnim {
   0% { transform: scale(0); opacity: 1; }
   100% { transform: scale(3); opacity: 0; }
+}
+/* Theme Tint Classes for Block Effect */
+.theme_red { background-color: rgba(255, 226, 229, 0.4) !important; border-color: #f7d0d4 !important; }
+.theme_blue { background-color: rgba(225, 240, 255, 0.4) !important; border-color: #cadff2 !important; }
+.theme_green { background-color: rgba(218, 240, 227, 0.4) !important; border-color: #c4e1d1 !important; }
+.theme_purple { background-color: rgba(232, 222, 238, 0.4) !important; border-color: #d8c9e0 !important; }
+.theme_orange { background-color: rgba(253, 236, 200, 0.4) !important; border-color: #f7e0b5 !important; }
+.theme_pink { background-color: rgba(245, 224, 233, 0.4) !important; border-color: #e8cad6 !important; }
+.theme_teal { background-color: rgba(221, 243, 241, 0.4) !important; border-color: #c5e3e0 !important; }
+.theme_gold { background-color: rgba(251, 243, 219, 0.4) !important; border-color: #ebe0c5 !important; }
+.theme_default { background-color: rgba(255, 255, 255, 0.015); }
+
+/* Ensure cells in tinted rows keep their punchy look */
+.theme_red .cell:not(.done):not(.exceeded), 
+.theme_blue .cell:not(.done):not(.exceeded),
+.theme_green .cell:not(.done):not(.exceeded),
+.theme_purple .cell:not(.done):not(.exceeded),
+.theme_orange .cell:not(.done):not(.exceeded),
+.theme_pink .cell:not(.done):not(.exceeded),
+.theme_teal .cell:not(.done):not(.exceeded),
+.theme_gold .cell:not(.done):not(.exceeded) {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0, 0, 0, 0.05);
 }
