@@ -23,17 +23,17 @@
 
 .headerRow, .habitRow {
   display: grid;
-  grid-template-columns: 90px 1488px 50px; /* 31 cols * 48px = 1488px */
+  grid-template-columns: 110px 1488px 50px; /* Increased from 90px */
   align-items: center;
   gap: 12px;
-  min-width: 1640px; /* 90 + 1488 + 50 + gaps */
+  min-width: 1660px; 
   box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .headerRow, .habitRow {
-    grid-template-columns: 160px 1860px 60px; /* 31 cols * 60px = 1860px */
-    min-width: 2100px; 
+    grid-template-columns: 180px 1860px 60px; /* Increased from 160px */
+    min-width: 2120px; 
     gap: 16px;
   }
 }
@@ -66,10 +66,10 @@
   width: 100%;
   position: sticky;
   left: 0;
-  z-index: 20;
-  background: #FFFFFF;
-  height: 24px;
-  border-right: 1px solid #EDEDEB;
+  z-index: 100; /* Higher priority */
+  background: #FFFFFF !important; /* Force opacity */
+  height: 100%;
+  border-right: 2px solid #EDEDEB; /* Thicker to hide gaps */
 }
 
 @media (min-width: 768px) {
@@ -110,12 +110,13 @@
   overflow: hidden;
   position: sticky;
   left: 0;
-  z-index: 20;
-  background: #FFFFFF; /* NOTION WHITE */
-  padding: 10px 10px 10px 16px; 
+  z-index: 100; /* Higher priority */
+  background: #FFFFFF !important; /* Force absolute opacity */
+  padding: 10px 12px 10px 16px; 
   margin: -10px 0 -10px -10px; 
   height: calc(100% + 20px); 
-  border-right: 1px solid #EDEDEB;
+  border-right: 2px solid #EDEDEB; /* Thicker to hide gaps */
+  box-shadow: 4px 0 10px -5px rgba(0,0,0,0.05); /* Slight shadow to mask transition */
 }
 
 .habitTitleRow {
