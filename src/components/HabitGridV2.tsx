@@ -17,6 +17,7 @@ interface HabitGridV2Props {
 }
 
 export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, baseDate = new Date(), themeColor }: HabitGridV2Props) {
+  const { reorderHabits, moveHabit } = useHabits();
   const [items, setItems] = useState(habits);
   const todayRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +67,9 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, b
 
   const handleReorder = (newItems: Habit[]) => {
     setItems(newItems);
-    // In v2, we'd sync individual sortOrder back to Firestore
+    if (newItems.length > 0) {
+      reorderHabits(newItems[0].groupId, newItems);
+    }
   };
 
   return (
@@ -110,7 +113,7 @@ export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, b
 function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCell, themeColor = "default" }: any) {
   const [isBroken, setIsBroken] = useState(false);
   const [showEmpathy, setShowEmpathy] = useState(false);
-  const { deleteHabit } = useHabits();
+  const { deleteHabit, moveHabit } = useHabits();
 
   // Detect broken streak (>=3 days missed in a row)
   useEffect(() => {
@@ -199,7 +202,28 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
         x: isBroken ? { duration: 0.4, repeat: 0 } : { duration: 0.2 }
       }}
       exit={{ opacity: 0, y: -10 }}
-      whileDrag={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.5)" }}
+      whileDrag={{ 
+        scale: 1.02, 
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+        zIndex: 100,
+        pointerEvents: "none" // Allow elementFromPoint to hit targets below
+      }}
+      onDragEnd={(event, info) => {
+        // Find if dropped over another group
+        const target = document.elementFromPoint(info.point.x, info.point.y);
+        const groupRow = target?.closest('[data-group-id]');
+        if (groupRow) {
+          const newGroupId = groupRow.getAttribute('data-group-id');
+          if (newGroupId && newGroupId !== habit.groupId) {
+            // Give a small delay to prevent immediate click triggers
+            setTimeout(() => {
+              if (window.confirm(`Move "${habit.name}" to this group?`)) {
+                moveHabit(habit.id, habit.groupId, newGroupId);
+              }
+            }, 50);
+          }
+        }
+      }}
     >
       <div className={styles.habitMeta} onClick={() => onHabitClick(habit)}>
         <div className={styles.habitTitleRow}>

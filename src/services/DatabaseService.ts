@@ -220,17 +220,33 @@ export class DatabaseService {
     await batch.commit();
   }
 
-  /**
-   * Save rich media details to a habit entry (Note, Mood, Photo) via Long-Press
-   */
-  async updateHabitEntryDetails(
-    userId: string, 
-    groupId: string,
-    habitId: string, 
-    dateStr: string, 
-    details: Partial<HabitEntry>
-  ) {
-    const entryRef = doc(db, "users", userId, "groups", groupId, "habits", habitId, "entries", dateStr);
-    await setDoc(entryRef, details, { merge: true });
+  async updateHabit(userId: string, groupId: string, habitId: string, data: Partial<Habit>) {
+    const habitRef = doc(db, "users", userId, "groups", groupId, "habits", habitId);
+    await updateDoc(habitRef, data as any);
+  }
+
+  async moveHabitToGroup(userId: string, oldGroupId: string, newGroupId: string, habitId: string) {
+    const oldRef = doc(db, "users", userId, "groups", oldGroupId, "habits", habitId);
+    const newRef = doc(db, "users", userId, "groups", newGroupId, "habits", habitId);
+    
+    const snap = await getDoc(oldRef);
+    if (!snap.exists()) return;
+    
+    const habitData = snap.data();
+    const batch = writeBatch(db);
+    
+    // Move habit doc
+    batch.set(newRef, { ...habitData, groupId: newGroupId });
+    batch.delete(oldRef);
+    
+    // Move entries (limit to 450 to stay safe with Firestore batch limit)
+    const entriesSnap = await getDocs(query(collection(db, "users", userId, "groups", oldGroupId, "habits", habitId, "entries")));
+    entriesSnap.docs.slice(0, 450).forEach(docSnap => {
+      const newEntryRef = doc(db, "users", userId, "groups", newGroupId, "habits", habitId, "entries", docSnap.id);
+      batch.set(newEntryRef, docSnap.data());
+      batch.delete(docSnap.ref);
+    });
+    
+    await batch.commit();
   }
 }

@@ -38,8 +38,9 @@ export function GroupListAccordion({ groups, activeGroupId, onSelect, onNewGroup
           <div key={group.id} className={`${styles.groupRowWrapper} ${isActive ? styles.active : ""}`}>
             <motion.div 
               className={`${styles.groupRow} ${styles[`theme_${group.themeColor}`]}`}
-              onClick={() => onSelect(isActive ? "" : group.id)} // Toggle off if already active? User said "at one time only one should be open"
+              onClick={() => onSelect(isActive ? "" : group.id)} 
               whileTap={{ scale: 0.98 }}
+              data-group-id={group.id}
             >
               <div className={styles.rowLayout}>
                 <div className={styles.emoji}>{group.emoji}</div>

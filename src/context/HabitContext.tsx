@@ -16,6 +16,8 @@ interface HabitContextType {
   addGroup: (name: string, emoji: string, color: Group['themeColor']) => Promise<void>;
   deleteGroup: (groupId: string) => Promise<void>;
   deleteHabit: (habitId: string) => Promise<void>;
+  reorderHabits: (groupId: string, newOrderedHabits: Habit[]) => Promise<void>;
+  moveHabit: (habitId: string, fromGroupId: string, toGroupId: string) => Promise<void>;
 }
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
@@ -112,10 +114,37 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     await DatabaseService.getInstance().deleteGroup(user.uid, groupId);
   };
 
+  const reorderHabits = async (groupId: string, newOrderedHabits: Habit[]) => {
+    if (!user) return;
+    
+    // Update local state immediately
+    setHabits(prev => {
+      const otherHabits = prev.filter(h => h.groupId !== groupId);
+      const updatedGroupHabits = newOrderedHabits.map((h, i) => ({ ...h, sortOrder: i }));
+      return [...otherHabits, ...updatedGroupHabits];
+    });
+
+    // Batch update Firestore
+    const db = DatabaseService.getInstance();
+    const updates = newOrderedHabits.map((h, i) => db.updateHabit(user.uid, groupId, h.id, { sortOrder: i }));
+    await Promise.all(updates);
+  };
+
+  const moveHabit = async (habitId: string, fromGroupId: string, toGroupId: string) => {
+    if (!user || fromGroupId === toGroupId) return;
+    
+    // Optimistic UI
+    setHabits(prev => prev.map(h => h.id === habitId ? { ...h, groupId: toGroupId, sortOrder: 999 } : h));
+    
+    await DatabaseService.getInstance().moveHabitToGroup(user.uid, fromGroupId, toGroupId, habitId);
+    await refreshHabits();
+  };
+
   return (
     <HabitContext.Provider value={{ 
       groups, activeGroupId, setActiveGroupId, habits, loading, 
-      refreshGroups, refreshHabits, toggleHabit, addGroup, deleteGroup, deleteHabit 
+      refreshGroups, refreshHabits, toggleHabit, addGroup, deleteGroup, deleteHabit,
+      reorderHabits, moveHabit 
     }}>
       {children}
     </HabitContext.Provider>
