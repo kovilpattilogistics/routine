@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { DatabaseService, UserProfile } from "@/services/DatabaseService";
+import { DatabaseService, UserProfile, Group } from "@/services/DatabaseService";
 import styles from "./onboarding.module.css";
 
 // ── Data ───────────────────────────────────────────────────────────────
@@ -95,26 +95,36 @@ export default function OnboardingPage() {
         await DatabaseService.getInstance().createUserProfile(user.uid, profileUpdate);
       }
 
-      // Initialize default groups first to ensure the hierarchy exists
-      await DatabaseService.getInstance().initDefaultGroups(user.uid);
-      
       // Add first task as a habit if provided
       if (firstTask.trim()) {
-        const groups = await DatabaseService.getInstance().getGroups(user.uid);
-        const targetGroupId = groups[0]?.id; // Put in the first group (e.g., Gym or Wellness)
-        
-        if (targetGroupId) {
-          const habit = { 
-            id: Date.now().toString(), 
-            name: firstTask.trim(), 
-            groupId: targetGroupId,
-            emoji: "✨",
-            frequency: 'daily' as const,
-            sortOrder: 0,
-            completedDays: {} 
-          };
-          await DatabaseService.getInstance().addHabit(user.uid, targetGroupId, habit);
-        }
+        const db = DatabaseService.getInstance();
+        const area = FOCUS_AREAS.find(f => f.value === (taskCategory || focusArea));
+        const groupName = area?.label || "My Routine";
+        const emoji = area?.emoji || "✨";
+        const themeColors: Group['themeColor'][] = ["red", "blue", "green", "purple", "orange", "pink", "teal", "gold"];
+        const themeColor = themeColors[Math.floor(Math.random() * themeColors.length)];
+
+        const gId = `${Date.now()}`;
+        await db.addGroup(user.uid, {
+          id: gId,
+          name: groupName,
+          emoji,
+          themeColor,
+          sortOrder: 0,
+          isDeleted: false,
+          createdAt: new Date() as any
+        } as any);
+
+        const habit = { 
+          id: `h-${Date.now()}`, 
+          name: firstTask.trim(), 
+          groupId: gId,
+          emoji: emoji,
+          frequency: 'daily' as const,
+          sortOrder: 0,
+          completedDays: {} 
+        };
+        await db.addHabit(user.uid, gId, habit as any);
       }
     } catch (e) {
       console.error("Onboarding save error:", e);

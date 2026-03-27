@@ -48,8 +48,6 @@ export default function RegisterPage() {
           email,
           onboardingComplete: false,
         });
-        // Initialize v2 Default Groups
-        await db.initDefaultGroups(u.uid);
       } catch (e) {
         console.error("Initial profile/group save failed:", e);
       }
