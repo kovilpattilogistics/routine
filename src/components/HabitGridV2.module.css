@@ -110,13 +110,12 @@
   overflow: hidden;
   position: sticky;
   left: 0;
-  z-index: 100; /* Higher priority */
-  background: #FFFFFF !important; /* Force absolute opacity */
+  z-index: 100;
+  background: #FFFFFF !important;
   padding: 10px 12px 10px 16px; 
-  margin: -10px 0 -10px -10px; 
-  height: calc(100% + 20px); 
-  border-right: 2px solid #EDEDEB; /* Thicker to hide gaps */
-  box-shadow: 4px 0 10px -5px rgba(0,0,0,0.05); /* Slight shadow to mask transition */
+  align-self: stretch; /* Cover entire row height without hacks */
+  border-right: 2px solid #EDEDEB;
+  box-shadow: 4px 0 10px -5px rgba(0,0,0,0.05);
 }
 
 .habitTitleRow {
