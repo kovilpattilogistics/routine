@@ -1,332 +1,371 @@
+/* ── Grid Container ──────────────────────────────────────── */
 .gridContainer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   overflow-x: auto;
-  padding-bottom: 8px; /* Room for scrollbar if any */
+  padding-bottom: 8px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #D3D1CB #F1F1EF;
 }
 
-.gridContainer::-webkit-scrollbar {
-  height: 4px;
-}
+.gridContainer::-webkit-scrollbar { height: 4px; }
+.gridContainer::-webkit-scrollbar-track { background: #F7F7F5; }
+.gridContainer::-webkit-scrollbar-thumb { background: #D3D1CB; border-radius: 4px; }
 
-.gridContainer::-webkit-scrollbar-track {
-  background: #F1F1EF;
-}
-
-.gridContainer::-webkit-scrollbar-thumb {
-  background: #D3D1CB;
-  border-radius: 4px;
-}
-
-.headerRow, .habitRow {
+/* ── Layout Row: [sticky meta] [cells] [spacer] ─────────── */
+.headerRow,
+.habitRow {
   display: grid;
-  grid-template-columns: 170px 1488px 25px; /* Added 25px end spacer */
+  grid-template-columns: 160px 1fr 20px;
   align-items: center;
-  gap: 12px;
-  min-width: 1735px; /* Recalculated: 170 + 12 + 1488 + 12 + 25 + 20(padding) + 8(scrollbar room if any) */
-  box-sizing: border-box;
+  gap: 10px;
+  min-width: max-content;
 }
 
-@media (min-width: 768px) {
-  .headerRow, .habitRow {
-    grid-template-columns: 180px 1860px 30px; /* Added 30px end spacer */
-    min-width: 2132px; /* Recalculated: 180 + 16 + 1860 + 16 + 30 + 20(padding) + 10(buffer) */
-    gap: 16px;
-  }
-}
-
+/* ── Header strip ────────────────────────────────────────── */
 .headerRow {
-  padding: 0 10px;
-  margin-bottom: -4px;
-}
-
-.daysStrip, .cellsRow {
-  display: grid;
-  grid-template-columns: repeat(31, 1fr);
-  gap: 8px;
-  align-items: center;
-}
-
-.dayLabel {
-  font-size: 10px;
-  font-weight: 800;
-  color: #787774;
-  text-transform: uppercase;
-  text-align: center;
-  white-space: nowrap;
-  padding: 8px 0;
-  border-radius: 8px;
-  transition: all 0.2s;
+  padding: 0 8px;
+  margin-bottom: -2px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
 }
 
 .headerSpacer {
-  width: 100%;
   position: sticky;
   left: 0;
-  z-index: 101; /* Slightly higher than columns for safe layering */
-  background: #FFFFFF !important;
-  height: 32px; /* Fixed height for consistency */
+  z-index: 12;
+  background: #fff;
 }
 
-@media (min-width: 768px) {
-  .dayLabel { font-size: 9px; }
+.daysStrip,
+.cellsRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
+
+/* Each cell column: fixed width to snap nicely */
+.daysStrip > *,
+.cellsRow > * {
+  flex: 0 0 40px;
+}
+
+.dayLabel {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #9b9a97;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: pre-line;
+  padding: 6px 2px;
+  border-radius: 8px;
+  line-height: 1.3;
+  transition: color 0.2s, background 0.2s;
+  width: 40px;
+}
+
+.dayName { display: block; }
 
 .dayLabel.today {
   color: #fff;
   background: #37352F;
-  border: 1px solid #37352F;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   font-weight: 900;
 }
 
+.endSpacer { flex: 0 0 20px; }
+
+/* ── Habit List ──────────────────────────────────────────── */
 .habitList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
+/* ── Habit Row ───────────────────────────────────────────── */
 .habitRow {
-  background: rgba(255, 255, 255, 0.015);
-  border-radius: 16px;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  transition: all 0.2s;
+  background: #fff;
+  border-radius: 14px;
+  padding: 8px;
+  border: 1px solid #EDEDEB;
+  transition: box-shadow 0.2s ease;
+  will-change: box-shadow;
 }
 
+.habitRow:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.habitRow.dragging {
+  opacity: 0.6;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Sticky Meta Column ──────────────────────────────────── */
 .habitMeta {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
-  overflow: hidden;
   position: sticky;
   left: 0;
-  z-index: 100;
-  background: #FFFFFF !important; /* Default fallback */
-  padding: 12px 12px 12px 16px; 
-  align-self: stretch;
-  box-shadow: none;
+  z-index: 5;
+  background: #fff;
+  padding: 8px 10px 8px 12px;
+  border-radius: 10px;
+  transition: background 0.15s;
+  min-width: 0;
 }
 
-/* Match Meta background to row theme for seamless opaque masking */
-.theme_red .habitMeta { background-color: #FFF3F4 !important; }
-.theme_blue .habitMeta { background-color: #F0F8FF !important; }
-.theme_green .habitMeta { background-color: #F0FDF4 !important; }
-.theme_purple .habitMeta { background-color: #F5F3FF !important; }
-.theme_orange .habitMeta { background-color: #FFF7ED !important; }
-.theme_pink .habitMeta { background-color: #FDF2F8 !important; }
-.theme_teal .habitMeta { background-color: #F0FDFA !important; }
-.theme_gold .habitMeta { background-color: #FEFCE8 !important; }
-.theme_default .habitMeta { background-color: #FFFFFF !important; }
-
-/* Ensure opaque background inside sticky area even if row is tinted */
-.habitMeta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: inherit;
-  z-index: -1;
-}
-
-/* Show deletion only on hover to declutter */
-.deleteHabitBtn {
-  opacity: 0;
-  background: none;
-  border: none;
-  color: #9b9a97;
-  padding: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.habitMeta:hover .deleteHabitBtn {
-  opacity: 1;
-}
-
-.deleteHabitBtn:hover {
-  background: #EDEDEB;
-  color: #eb5757;
-}
+.theme_red    .habitMeta { background: #FFF5F5; }
+.theme_blue   .habitMeta { background: #F0F7FF; }
+.theme_green  .habitMeta { background: #F0FDF4; }
+.theme_purple .habitMeta { background: #F5F0FF; }
+.theme_orange .habitMeta { background: #FFF8F0; }
+.theme_pink   .habitMeta { background: #FDF0F6; }
+.theme_teal   .habitMeta { background: #F0FDFA; }
+.theme_gold   .habitMeta { background: #FFFBF0; }
 
 .habitTitleRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  position: relative;
+  gap: 6px;
 }
 
-.emoji { 
-  font-size: 16px; 
-  margin-left: 4px; /* Space after name in new order */
-}
-.name {
+.dragHandle {
   font-size: 14px;
-  font-weight: 800;
+  color: #C0BDB9;
+  cursor: grab;
+  padding: 2px;
+  user-select: none;
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.dragHandle:active { cursor: grabbing; }
+
+.emoji {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 700;
   color: #37352F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-decoration: none;
-  border-bottom: none;
   flex: 1;
 }
 
+/* ── Delete buttons ──────────────────────────────────────── */
 .deleteHabitBtn {
-  background: transparent;
+  opacity: 0;
+  background: none;
   border: none;
-  color: #D3D1CB;
-  cursor: pointer;
+  color: #C0BDB9;
   padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
 }
 
-.habitMeta:hover .deleteHabitBtn {
+.habitMeta:hover .deleteHabitBtn,
+.habitRow:focus-within .deleteHabitBtn {
   opacity: 1;
 }
 
 .deleteHabitBtn:hover {
   background: #FFE2E5;
-  color: #EB5757;
+  color: #eb5757;
 }
 
-.xpBar {
-  display: none; /* Removed as per 'remove underline' request */
+/* Inline confirm row */
+.deleteConfirmRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
 }
 
-.cell {
-  aspect-ratio: 1;
-  width: 100%;
-  max-width: 36px;
-  margin: 0 auto;
-  background: #F1F1EF;
-  border-radius: 50%;
+.deleteConfirmLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #37352F;
+  white-space: nowrap;
+}
+
+.deleteConfirmYes {
+  background: #eb5757;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  border: 1px solid #EDEDEB;
 }
 
-@media (min-width: 768px) {
-  .cell { max-width: 38px; }
+.deleteConfirmNo {
+  background: #F1F1EF;
+  color: #37352F;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
 }
+
+/* ── XP bar ──────────────────────────────────────────────── */
+.xpBar {
+  height: 2px;
+  background: #F1F1EF;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.xpFill {
+  height: 100%;
+  background: currentColor;
+  opacity: 0.4;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  will-change: width;
+}
+
+.empathyMsg {
+  font-size: 10px;
+  color: #787774;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Habit Cells ─────────────────────────────────────────── */
+.cell {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F1F1EF;
+  border: 1px solid #EDEDEB;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Touch feedback */
+.cell:active { transform: scale(0.9); }
 
 .cell.future {
-  background: #F1F1EF;
-  border: 1.5px dashed #EDEDEB;
-  cursor: not-allowed;
+  background: #F7F7F5;
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.5;
 }
+
+.cell.future:active { transform: none; }
 
 .cell.today {
-  border-color: #D3D1CB;
+  border-color: #B0AEA9;
   background: #F7F7F5;
+  box-shadow: 0 0 0 2px rgba(55, 53, 47, 0.08);
 }
-
 
 .cell.done {
   background: #DAF0E3;
-  border-color: #B5E0C9;
+  border-color: #ADE0C1;
 }
 
 .cell.exceeded {
   background: #FDECC8;
-  border-color: #F8DA9F;
+  border-color: #F5D08A;
 }
 
 .cell.missed {
   background: #FFF0F0;
   border-color: #F8D7DA;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.endSpacer {
-  width: 100%;
-  height: 100%;
-}
-
-.streakArea {
-  display: none; /* Removed as per request to move streak to circles */
-}
-
-.empathyMsg {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 12px;
-  font-size: 8px;
-  color: #555;
-  font-weight: 600;
-  white-space: nowrap;
-  pointer-events: none;
 }
 
 .cellStreak {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   font-size: 11px;
   font-weight: 900;
   color: #37352F;
-  pointer-events: none;
-  opacity: 0.9;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8); /* Better contrast against cell colors */
+  line-height: 1;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.missedCross {
+  font-size: 11px;
+  color: #FCA5A5;
+  line-height: 1;
 }
 
-.ripple {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: inherit;
-  animation: rippleAnim 0.4s ease-out forwards;
+/* ── Theme tints for rows ────────────────────────────────── */
+.theme_red    { background: #FFF5F5; border-color: #F7D0D4; }
+.theme_blue   { background: #F0F7FF; border-color: #C8DDF5; }
+.theme_green  { background: #F0FDF4; border-color: #C9F0D9; }
+.theme_purple { background: #F5F0FF; border-color: #E0D5F5; }
+.theme_orange { background: #FFF8F0; border-color: #F5DFB5; }
+.theme_pink   { background: #FDF0F6; border-color: #F5C8E2; }
+.theme_teal   { background: #F0FDFA; border-color: #C8EDE9; }
+.theme_gold   { background: #FFFBF0; border-color: #F5E8B5; }
+
+/* Cells within themed rows keep contrast */
+.theme_red    .cell:not(.done):not(.exceeded):not(.missed),
+.theme_blue   .cell:not(.done):not(.exceeded):not(.missed),
+.theme_green  .cell:not(.done):not(.exceeded):not(.missed),
+.theme_purple .cell:not(.done):not(.exceeded):not(.missed),
+.theme_orange .cell:not(.done):not(.exceeded):not(.missed),
+.theme_pink   .cell:not(.done):not(.exceeded):not(.missed),
+.theme_teal   .cell:not(.done):not(.exceeded):not(.missed),
+.theme_gold   .cell:not(.done):not(.exceeded):not(.missed) {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.07);
 }
 
-@keyframes rippleAnim {
-  0% { transform: scale(0); opacity: 1; }
-  100% { transform: scale(3); opacity: 0; }
+/* ── Reduce motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .xpFill,
+  .habitRow {
+    transition: none !important;
+  }
 }
-/* Theme Tint Classes for Block Effect - OPAQUE HEX FOR SOLID WALL */
-.theme_red { background-color: #FFF3F4 !important; border-color: #F7D0D4 !important; }
-.theme_blue { background-color: #F0F8FF !important; border-color: #CADFF2 !important; }
-.theme_green { background-color: #F0FDF4 !important; border-color: #D1FAE5 !important; }
-.theme_purple { background-color: #F5F3FF !important; border-color: #EDE9FE !important; }
-.theme_orange { background-color: #FFF7ED !important; border-color: #FFEDD5 !important; }
-.theme_pink { background-color: #FDF2F8 !important; border-color: #FCE7F3 !important; }
-.theme_teal { background-color: #F0FDFA !important; border-color: #CCFBF1 !important; }
-.theme_gold { background-color: #FEFCE8 !important; border-color: #FEF9C3 !important; }
-.theme_default { background-color: #FFFFFF !important; }
 
-/* Ensure cells in tinted rows keep their punchy look */
-.theme_red .cell:not(.done):not(.exceeded), 
-.theme_blue .cell:not(.done):not(.exceeded),
-.theme_green .cell:not(.done):not(.exceeded),
-.theme_purple .cell:not(.done):not(.exceeded),
-.theme_orange .cell:not(.done):not(.exceeded),
-.theme_pink .cell:not(.done):not(.exceeded),
-.theme_teal .cell:not(.done):not(.exceeded),
-.theme_gold .cell:not(.done):not(.exceeded) {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(0, 0, 0, 0.05);
+/* ── Responsive cell sizing for mobile ───────────────────── */
+@media (max-width: 480px) {
+  .daysStrip > *,
+  .cellsRow > * {
+    flex: 0 0 34px;
+  }
+  .cell {
+    width: 34px;
+    height: 34px;
+  }
+  .dayLabel {
+    font-size: 8px;
+    width: 34px;
+  }
+  .habitMeta {
+    padding: 6px 8px;
+  }
 }

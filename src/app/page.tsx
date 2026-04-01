@@ -20,19 +20,27 @@ export default function LandingPage() {
 
   return (
     <main className={styles.hero}>
-      <div className={styles.overlay} />
       <div className={styles.content}>
         <p className={styles.eyebrow}>Your day. Your rules.</p>
+
         <h1 className={styles.headline}>
-          Build the habits that<br />build your life.
+          Build the habits that<br />
+          build <span>your life.</span>
         </h1>
+
         <p className={styles.sub}>
           A calm space to plan your day, track your goals, and show up — every single day.
         </p>
+
         <Link href="/register" className={styles.cta}>
-          <span className={styles.ctaText}>Get Started</span>
+          <span className={styles.ctaText}>Get Started — It's free</span>
           <span className={styles.ctaArrow}>→</span>
         </Link>
+
+        <p className={styles.signin}>
+          Already have an account?{" "}
+          <Link href="/login">Sign in</Link>
+        </p>
       </div>
     </main>
   );

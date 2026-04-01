@@ -40,16 +40,14 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const u = await AuthService.getInstance().register(email, password);
-      // Save initial profile, then go to onboarding for the rest
+      // Save initial profile — email is stored separately in Firebase Auth, not in UserProfile
       try {
-        const db = DatabaseService.getInstance();
-        await db.createUserProfile(u.uid, {
+        await DatabaseService.getInstance().createUserProfile(u.uid, {
           name: name.trim(),
-          email,
           onboardingComplete: false,
         });
       } catch (e) {
-        console.error("Initial profile/group save failed:", e);
+        console.error("Initial profile save failed:", e);
       }
       router.push("/onboarding");
     } catch (err: any) {

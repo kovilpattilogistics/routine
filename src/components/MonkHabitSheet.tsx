@@ -31,21 +31,26 @@ export function MonkHabitSheet({ habit, onClose }: MonkHabitSheetProps) {
   const handleFetchAiTip = async () => {
     setLoadingAi(true);
     try {
-      // Re-using the /api/ai endpoint with a HABIT_DRILLDOWN trigger context
       const resp = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          eventType: "HABIT_DRILLDOWN",
-          uid: "local",
-          gridDataText: `Target Habit: ${habit.name}. Total: ${habit.totalCompletions}. Current Streak: ${habit.currentStreak}`,
-          profileContext: `Provide a highly specific, tactical 2-sentence tip on how to maintain or improve this specific habit.`,
+          // Match the actual /api/ai schema
+          profile: { name: "User", focusArea: "health" }, // minimal placeholder
+          habits: [habit],
+          trigger: {
+            type: "TASK_TOGGLE",
+            actionPayload: `Drilldown on habit: ${habit.name}. Total completions: ${habit.totalCompletions}. Streak: ${habit.currentStreak}. Provide a specific, actionable 2-sentence tip.`,
+          },
         }),
       });
       const data = await resp.json();
-      setAiInsight(data.insight?.text || "Keep pushing forward. Consistency is the true key to this discipline.");
+      setAiInsight(
+        data?.data?.message ||
+        "Keep pushing forward. Consistency is the true key to this discipline."
+      );
     } catch {
-      setAiInsight("you are doing good, keep up with your progress");
+      setAiInsight("Keep showing up — every completion builds momentum.");
     } finally {
       setLoadingAi(false);
     }

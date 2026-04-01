@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useHabits } from "@/context/HabitContext";
-import { DatabaseService, UserProfile, Group, Habit } from "@/services/DatabaseService";
+import { DatabaseService, UserProfile, Habit } from "@/services/DatabaseService";
 import { GamificationService, XP_REWARDS } from "@/services/GamificationService";
 
-// v2 Components
 import { GroupListAccordion } from "@/components/GroupListAccordion";
 import { HabitGridV2 } from "@/components/HabitGridV2";
 import { MonkHeader } from "@/components/MonkHeader";
@@ -19,105 +18,140 @@ import { MonkHabitSheet } from "@/components/MonkHabitSheet";
 import { PastDataModal } from "@/components/PastDataModal";
 
 import styles from "./planner.module.css";
-import { AnimatePresence, motion } from "framer-motion";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
 
 export default function PlannerPage() {
   const { user, loading: authLoading } = useAuth();
-  const { 
-    groups, activeGroupId, setActiveGroupId, habits, loading: habitsLoading,
-    toggleHabit, addGroup, refreshGroups, refreshHabits
+  const {
+    groups,
+    activeGroupId,
+    setActiveGroupId,
+    habits,
+    loading: habitsLoading,
+    toggleHabit,
+    addGroup,
+    refreshHabits,
   } = useHabits();
   const router = useRouter();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [isNewGroupModalOpen, setIsNewGroupModalOpen] = useState(false);
-  const [isAddHabitOpen, setIsAddHabitOpen] = useState(false);
-  const [cellModalData, setCellModalData] = useState<{ habitId: string; dateStr: string; habitName: string } | null>(null);
+  // Per-group add-habit state — keyed by groupId so switching groups resets the form
+  const [addHabitForGroupId, setAddHabitForGroupId] = useState<string | null>(null);
+  const [cellModalData, setCellModalData] = useState<{
+    habitId: string;
+    dateStr: string;
+    habitName: string;
+  } | null>(null);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [latestAction, setLatestAction] = useState<string | undefined>(undefined);
   const [baseDate, setBaseDate] = useState(new Date());
   const [isPastDataModalOpen, setIsPastDataModalOpen] = useState(false);
 
+  // Auth guard
   useEffect(() => {
     if (!authLoading && !user) router.replace("/login");
   }, [user, authLoading, router]);
 
+  // Load profile separately — doesn't block habit grid from rendering
   useEffect(() => {
     if (!user) return;
-    DatabaseService.getInstance().getUserProfile(user.uid).then(setProfile);
+    DatabaseService.getInstance()
+      .getUserProfile(user.uid)
+      .then((p) => { setProfile(p); setProfileLoading(false); })
+      .catch(() => setProfileLoading(false));
   }, [user]);
 
-  if (authLoading || habitsLoading || !profile || !user) {
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const handleToggle = useCallback(
+    async (habitId: string, dateStr: string, isCompleted: boolean, intensity: number) => {
+      const habit = habits.find((h) => h.id === habitId);
+      if (!habit) return;
+
+      if (dateStr === todayStr) {
+        setLatestAction(isCompleted ? `Completed: ${habit.name}` : `Unmarked: ${habit.name}`);
+      }
+
+      await toggleHabit(habitId, dateStr, isCompleted, intensity);
+
+      // XP — only award if user profile is loaded
+      if (profile && user) {
+        let xpAward = isCompleted ? XP_REWARDS.HABIT_COMPLETION : -XP_REWARDS.HABIT_COMPLETION;
+        if (intensity === 2) xpAward += XP_REWARDS.EXCEEDED_GOAL;
+        const newTotalXP = (profile.totalXP || 0) + xpAward;
+        setProfile((prev) => (prev ? { ...prev, totalXP: newTotalXP } : null));
+        // Fire-and-forget DB update
+        DatabaseService.getInstance().addXP(user.uid, xpAward).catch(console.error);
+      }
+    },
+    [habits, todayStr, toggleHabit, profile, user]
+  );
+
+  const handleAddHabit = useCallback(
+    async (data: { name: string; emoji: string; frequency: string; customDays: string[] }) => {
+      if (!user || !addHabitForGroupId) return;
+      const id = `h-${Date.now()}`;
+      const newHabit: Habit = {
+        id,
+        ...data,
+        frequency: data.frequency as Habit["frequency"],
+        groupId: addHabitForGroupId,
+        sortOrder: habits.filter((h) => h.groupId === addHabitForGroupId).length,
+        completedDays: {},
+        currentStreak: 0,
+        bestStreak: 0,
+        totalCompletions: 0,
+      };
+      await DatabaseService.getInstance().addHabit(user.uid, addHabitForGroupId, newHabit);
+      await refreshHabits();
+      setAddHabitForGroupId(null);
+    },
+    [user, addHabitForGroupId, habits, refreshHabits]
+  );
+
+  const handleAddGroup = useCallback(
+    async (name: string, emoji: string, color: any) => {
+      await addGroup(name, emoji, color);
+      setIsNewGroupModalOpen(false);
+    },
+    [addGroup]
+  );
+
+  // Show skeleton during initial load — not a blank white screen
+  if (authLoading || habitsLoading) {
     return (
-      <div className={styles.loadingContainer}>
-        <motion.div 
-          animate={{ opacity: [0.5, 1, 0.5] }} 
-          transition={{ repeat: Infinity, duration: 2 }}
-          className={styles.loadingText}
-        >
-          Initializing your MonkGrid...
-        </motion.div>
+      <div className={styles.v2Container}>
+        <div className={styles.skeletonHeader}>
+          <div className={`${styles.skeletonAvatar} skeleton`} />
+          <div className={styles.skeletonLines}>
+            <div className={`${styles.skeletonLine} skeleton`} style={{ width: "140px" }} />
+            <div className={`${styles.skeletonLine} skeleton`} style={{ width: "90px" }} />
+          </div>
+        </div>
+        <div className={styles.skeletonBody}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`${styles.skeletonGroup} skeleton`} />
+          ))}
+        </div>
       </div>
     );
   }
 
-  const activeGroup = groups.find(g => g.id === activeGroupId);
-  const todayStr = new Date().toISOString().split("T")[0];
+  if (!user) return null;
 
-  const handleToggle = async (habitId: string, dateStr: string, isCompleted: boolean, intensity: number) => {
-    const habit = habits.find(h => h.id === habitId);
-    if (!habit) return;
-
-    // Trigger AI response for today
-    if (dateStr === todayStr) {
-      setLatestAction(isCompleted ? `Completed: ${habit.name}` : `Unmarked: ${habit.name}`);
-    }
-
-    // Context handles optimistic UI and DB write
-    await toggleHabit(habitId, dateStr, isCompleted, intensity);
-
-    // XP Logic (Bonus checks handled here in Page level for simplicity in v2)
-    let xpAward = isCompleted ? XP_REWARDS.HABIT_COMPLETION : -XP_REWARDS.HABIT_COMPLETION;
-    if (intensity === 2) xpAward += XP_REWARDS.EXCEEDED_GOAL;
-
-    // TODO: Detect Group Completion for +25 XP
-    // TODO: Detect Full Day Completion for +75 XP
-
-    const newTotalXP = (profile?.totalXP || 0) + xpAward;
-    setProfile(prev => prev ? { ...prev, totalXP: newTotalXP } : null);
-    await DatabaseService.getInstance().addXP(user.uid, xpAward);
-  };
-
-  const handleAddHabit = async (data: any) => {
-    if (!user || !activeGroupId) return;
-    const id = `h-${Date.now()}`;
-    const newHabit: Habit = {
-      id, ...data, groupId: activeGroupId, 
-      sortOrder: habits.length, completedDays: {},
-      currentStreak: 0, bestStreak: 0, totalCompletions: 0
-    };
-    await DatabaseService.getInstance().addHabit(user.uid, activeGroupId, newHabit);
-    await refreshHabits();
-    setIsAddHabitOpen(false);
-  };
-
-  const handleAddGroup = async (name: string, emoji: string, color: any) => {
-    await addGroup(name, emoji, color);
-    setIsNewGroupModalOpen(false);
-  };
+  const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   return (
     <div className={styles.v2Container}>
-      <MonkHeader 
-        profile={profile} 
-        uid={user.uid} 
+      <MonkHeader
+        profile={profile}
+        uid={user.uid}
         onPastDataClick={() => setIsPastDataModalOpen(true)}
       />
 
       {isPastDataModalOpen && (
-        <PastDataModal 
+        <PastDataModal
           isOpen={isPastDataModalOpen}
           onClose={() => setIsPastDataModalOpen(false)}
           onSelect={(date: Date) => {
@@ -125,50 +159,65 @@ export default function PlannerPage() {
             setIsPastDataModalOpen(false);
           }}
           currentDate={baseDate}
-          minDate={profile.createdAt && typeof (profile.createdAt as any).toDate === 'function' 
-            ? (profile.createdAt as any).toDate() 
-            : (profile.createdAt instanceof Date ? profile.createdAt : new Date())}
+          minDate={
+            profile?.createdAt && typeof (profile.createdAt as any).toDate === "function"
+              ? (profile.createdAt as any).toDate()
+              : new Date()
+          }
         />
       )}
 
       <main className={styles.v2Main}>
-        {/* AI Insight (Retained from v1) */}
-        {profile && <AIInsightCard profile={profile} habits={habits} latestAction={latestAction} />}
+        {/* AI Insight — loads async, doesn't block page */}
+        {profile && (
+          <AIInsightCard
+            profile={profile}
+            habits={habits}
+            latestAction={latestAction}
+          />
+        )}
 
-        {/* Section: Vertical Accordion Groups */}
-        <GroupListAccordion 
+        <GroupListAccordion
           groups={groups}
           activeGroupId={activeGroupId}
-          onSelect={setActiveGroupId}
+          onSelect={(id) => {
+            // Close add-habit form when switching groups
+            setAddHabitForGroupId(null);
+            setActiveGroupId(id);
+          }}
           onNewGroup={() => setIsNewGroupModalOpen(true)}
           habits={habits}
           renderGrid={(groupId) => {
-            const groupHabits = habits.filter(h => h.groupId === groupId);
-            const activeGroup = groups.find(g => g.id === groupId);
-            
+            const groupHabits = habits.filter((h) => h.groupId === groupId);
+            const grp = groups.find((g) => g.id === groupId);
+            const isAddingHere = addHabitForGroupId === groupId;
+
             return (
               <div className={styles.accordionGridWrap}>
-                <HabitGridV2 
-                  habits={groupHabits} 
+                <HabitGridV2
+                  habits={groupHabits}
                   onToggle={handleToggle}
                   onHabitClick={setSelectedHabit}
                   onLongPressCell={(habitId, dateStr) => {
-                    const h = habits.find(h => h.id === habitId);
+                    const h = habits.find((h) => h.id === habitId);
                     if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
                   }}
                   baseDate={baseDate}
-                  themeColor={activeGroup?.themeColor}
+                  themeColor={grp?.themeColor}
                 />
 
-                {!isAddHabitOpen ? (
-                  <button className={styles.addHabitBtn} onClick={() => setIsAddHabitOpen(true)}>
-                    <span>＋</span> Add Habit to {activeGroup?.name}
+                {!isAddingHere ? (
+                  <button
+                    className={styles.addHabitBtn}
+                    onClick={() => setAddHabitForGroupId(groupId)}
+                  >
+                    <span>＋</span> Add Habit to {grp?.name}
                   </button>
                 ) : (
-                  <AddHabitInline 
-                    onSave={handleAddHabit} 
-                    onCancel={() => setIsAddHabitOpen(false)} 
-                    groupName={activeGroup?.name}
+                  <AddHabitInline
+                    onSave={handleAddHabit}
+                    onCancel={() => setAddHabitForGroupId(null)}
+                    groupName={grp?.name}
                   />
                 )}
               </div>
@@ -178,14 +227,14 @@ export default function PlannerPage() {
       </main>
 
       {/* Modals */}
-      <NewGroupModal 
-        isOpen={isNewGroupModalOpen} 
-        onClose={() => setIsNewGroupModalOpen(false)} 
+      <NewGroupModal
+        isOpen={isNewGroupModalOpen}
+        onClose={() => setIsNewGroupModalOpen(false)}
         onSave={handleAddGroup}
       />
 
       {cellModalData && (
-        <CellDetailsModal 
+        <CellDetailsModal
           isOpen={!!cellModalData}
           onClose={() => setCellModalData(null)}
           habitName={cellModalData.habitName}
@@ -193,36 +242,22 @@ export default function PlannerPage() {
           onSave={async (details) => {
             if (!user || !activeGroupId) return;
             await DatabaseService.getInstance().updateHabitEntryDetails(
-              user.uid, activeGroupId, cellModalData.habitId, cellModalData.dateStr, details
+              user.uid,
+              activeGroupId,
+              cellModalData.habitId,
+              cellModalData.dateStr,
+              details
             );
           }}
         />
       )}
 
-      <AnimatePresence>
-        {selectedHabit && (
-          <MonkHabitSheet 
-            habit={selectedHabit} 
-            onClose={() => setSelectedHabit(null)} 
-          />
-        )}
-      </AnimatePresence>
-
-
-      {/* CSS Variables Injector for Theme Colors */}
-      <style jsx global>{`
-        :root {
-          /* Notion Light Pastel Tokens */
-          --theme-red: #FFE2E5;
-          --theme-blue: #E1F0FF;
-          --theme-green: #DAF0E3;
-          --theme-purple: #E8DEEE;
-          --theme-orange: #FDECC8;
-          --theme-pink: #F5E0E9;
-          --theme-teal: #DDF3F1;
-          --theme-gold: #FBF3DB;
-        }
-      `}</style>
+      {selectedHabit && (
+        <MonkHabitSheet
+          habit={selectedHabit}
+          onClose={() => setSelectedHabit(null)}
+        />
+      )}
     </div>
   );
 }

@@ -20,27 +20,30 @@ export function AIInsightCard({ profile, habits, latestAction }: AIInsightCardPr
   const [insightData, setInsightData] = useState<AIResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  // Persist closed state within the session so reopening planner doesn't re-show
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return sessionStorage.getItem("ai_insight_closed") !== "1";
+  });
 
-  // We track the previous action so we don't infinitely fetch if it hasn't changed
   const [lastProcessedAction, setLastProcessedAction] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    // Determine the trigger context
     const isAppLoad = !lastProcessedAction && !latestAction;
     const isNewAction = latestAction && latestAction !== lastProcessedAction;
 
     if (!isAppLoad && !isNewAction) return;
+    if (!isVisible) return;
 
-    // Only fetch if we have some core data
-    if (!profile.role && !profile.struggle && !profile.age) return;
+    // Guard: don't fire if profile is essentially empty (fresh registration before onboarding)
+    if (!profile.role && !profile.struggle && !profile.age && !profile.focusArea) return;
 
     const fetchInsight = async () => {
       setLoading(true);
       setError(false);
-      
-      const trigger = isAppLoad 
-        ? { type: "APP_LOAD" } 
+
+      const trigger = isAppLoad
+        ? { type: "APP_LOAD" }
         : { type: "TASK_TOGGLE", actionPayload: latestAction };
 
       try {
@@ -53,15 +56,14 @@ export function AIInsightCard({ profile, habits, latestAction }: AIInsightCardPr
         if (!res.ok) throw new Error("API failed");
 
         const payload = await res.json();
-        if (!payload || !payload.data) throw new Error("Empty AI response");
+        if (!payload?.data) throw new Error("Empty AI response");
         setInsightData(payload.data);
       } catch (err) {
         console.error("Failed to load AI insight:", err);
-        // Defensive Fallback - Always ensure a valid structure
         setInsightData({
           type: "insight",
-          message: "you are doing good, keep up with your progress",
-          focus: "Consistency"
+          message: "Keep showing up — consistency compounds over time.",
+          focus: "Consistency",
         });
         setError(true);
       } finally {
@@ -70,13 +72,9 @@ export function AIInsightCard({ profile, habits, latestAction }: AIInsightCardPr
       }
     };
 
-    // Debounce the fetch slightly to allow React state to settle if multiple things happen rapidly
-    const timeoutId = setTimeout(() => {
-      fetchInsight();
-    }, 500);
-
+    const timeoutId = setTimeout(fetchInsight, 600);
     return () => clearTimeout(timeoutId);
-  }, [profile, habits, latestAction, lastProcessedAction]);
+  }, [profile, habits, latestAction, lastProcessedAction, isVisible]);
 
   const renderIcon = (type?: string) => {
     switch(type) {
@@ -97,7 +95,12 @@ export function AIInsightCard({ profile, habits, latestAction }: AIInsightCardPr
     <div className={`${styles.card} ${themeClass}`}>
       <button 
         className={styles.closeBtn}
-        onClick={() => setIsVisible(false)}
+        onClick={() => {
+          setIsVisible(false);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("ai_insight_closed", "1");
+          }
+        }}
         aria-label="Close insight"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

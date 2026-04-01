@@ -1,284 +1,333 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, Reorder, AnimatePresence } from "framer-motion";
-import { Habit, HabitEntry } from "@/services/DatabaseService";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
+import { Habit } from "@/services/DatabaseService";
 import { useHabits } from "@/context/HabitContext";
 import styles from "./HabitGridV2.module.css";
 import confetti from "canvas-confetti";
 
 interface HabitGridV2Props {
   habits: Habit[];
-  onToggle: (habitId: string, dateStr: string, isCompleted: boolean, intensity: number) => void;
+  onToggle: (
+    habitId: string,
+    dateStr: string,
+    isCompleted: boolean,
+    intensity: number
+  ) => void;
   onHabitClick: (habit: Habit) => void;
   onLongPressCell: (habitId: string, dateStr: string) => void;
   baseDate?: Date;
   themeColor?: string;
 }
 
-export function HabitGridV2({ habits, onToggle, onHabitClick, onLongPressCell, baseDate = new Date(), themeColor }: HabitGridV2Props) {
-  const { reorderHabits, moveHabit } = useHabits();
-  const [items, setItems] = useState(habits);
+// Pre-compute 31 days outside the component — recalculated only when baseDate changes
+function getDaysToRender(baseDate: Date): string[] {
+  return Array.from({ length: 31 }, (_, i) => {
+    const d = new Date(baseDate);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - 15 + i);
+    return d.toISOString().split("T")[0];
+  });
+}
+
+function getDayLabel(dateStr: string, compact: boolean): string {
+  const d = new Date(dateStr + "T00:00:00"); // force local parse
+  const date = d.getDate().toString().padStart(2, "0");
+
+  if (compact) {
+    const day = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][d.getDay()];
+    return `${date}\n${day}`;
+  }
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+  const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
+  return `${date} ${month} ${day}`;
+}
+
+// Pre-compute streak for a given date in O(n) — runs once per habit per render
+function computeStreakAtDate(
+  completedDays: Record<string, number | null | undefined>,
+  dateStr: string
+): number {
+  let streak = 0;
+  const current = new Date(dateStr + "T00:00:00");
+  for (let i = 0; i < 365; i++) {
+    const s = current.toISOString().split("T")[0];
+    const intensity = completedDays?.[s];
+    if (intensity === 1 || intensity === 2) {
+      streak++;
+      current.setDate(current.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+export function HabitGridV2({
+  habits,
+  onToggle,
+  onHabitClick,
+  onLongPressCell,
+  baseDate = new Date(),
+  themeColor,
+}: HabitGridV2Props) {
   const todayRef = useRef<HTMLDivElement>(null);
+  const [isCompact, setIsCompact] = useState(false);
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  const days = React.useMemo(() => getDaysToRender(baseDate), [baseDate]);
+
+  // Responsive detection via ResizeObserver — no SSR issues
   const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setIsCompact(entry.contentRect.width < 600);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
-  // Sync internal state when props change
-  React.useEffect(() => {
-    setItems(habits);
-  }, [habits]);
-
-  // Center Today on mount
+  // Scroll today into view on mount
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (todayRef.current) {
-        todayRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center'
-        });
-      }
-    }, 300); // Small delay to ensure layout is ready
+      todayRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }, 150);
     return () => clearTimeout(timer);
   }, []);
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-
-  // Balanced 31-day window: 15 past, Center (Today/Base), 15 future
-  const daysToRender = Array.from({ length: 31 }).map((_, i) => {
-    const d = new Date(baseDate);
-    d.setHours(0, 0, 0, 0); // Normalize to midnight
-    d.setDate(d.getDate() - 15 + i); 
-    return d.toISOString().split("T")[0];
-  });
-
-  const getDayLabel = (dateStr: string) => {
-    const d = new Date(dateStr);
-    const date = d.getDate().toString().padStart(2, '0');
-    const day = d.toLocaleDateString('en-US', { weekday: 'short' })[0];
-    
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return `${date} ${day}`;
-    }
-    
-    const month = d.toLocaleDateString('en-US', { month: 'short' });
-    return `${date} ${month} ${day}`;
-  };
-
-  const handleReorder = (newItems: Habit[]) => {
-    setItems(newItems);
-    if (newItems.length > 0) {
-      reorderHabits(newItems[0].groupId, newItems);
-    }
-  };
-
   return (
-    <div className={styles.gridContainer}>
+    <div className={styles.gridContainer} ref={containerRef}>
+      {/* Sticky header row with day labels */}
       <div className={styles.headerRow}>
         <div className={styles.headerSpacer} />
         <div className={styles.daysStrip}>
-          {daysToRender.map(day => (
-            <div 
-              key={day} 
-              ref={day === todayStr ? todayRef : null}
+          {days.map((day) => (
+            <div
+              key={day}
+              ref={day === todayStr ? todayRef : undefined}
               className={`${styles.dayLabel} ${day === todayStr ? styles.today : ""}`}
             >
-              {getDayLabel(day)}
+              {getDayLabel(day, isCompact)
+                .split("\n")
+                .map((line, i) => (
+                  <span key={i} className={i === 1 ? styles.dayName : ""}>
+                    {line}
+                  </span>
+                ))}
             </div>
           ))}
         </div>
         <div className={styles.endSpacer} />
       </div>
 
-      <Reorder.Group axis="y" values={items} onReorder={handleReorder} className={styles.habitList}>
-        <AnimatePresence>
-          {items.map((habit) => (
-            <HabitRow 
-              key={habit.id} 
-              habit={habit} 
-              days={daysToRender} 
-              todayStr={todayStr}
-              onToggle={onToggle}
-              onHabitClick={onHabitClick}
-              onLongPressCell={onLongPressCell}
-              themeColor={themeColor}
-            />
-          ))}
-        </AnimatePresence>
-      </Reorder.Group>
+      {/* Habit rows */}
+      <div className={styles.habitList}>
+        {habits.map((habit) => (
+          <HabitRow
+            key={habit.id}
+            habit={habit}
+            days={days}
+            todayStr={todayStr}
+            onToggle={onToggle}
+            onHabitClick={onHabitClick}
+            onLongPressCell={onLongPressCell}
+            themeColor={themeColor || "default"}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
-function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCell, themeColor = "default" }: any) {
-  const [isBroken, setIsBroken] = useState(false);
-  const [showEmpathy, setShowEmpathy] = useState(false);
-  const { deleteHabit, moveHabit } = useHabits();
+// ── Memoized HabitRow ──────────────────────────────────────
 
-  // Detect broken streak (>=3 days missed in a row)
-  useEffect(() => {
+interface HabitRowProps {
+  habit: Habit;
+  days: string[];
+  todayStr: string;
+  onToggle: (
+    habitId: string,
+    dateStr: string,
+    isCompleted: boolean,
+    intensity: number
+  ) => void;
+  onHabitClick: (habit: Habit) => void;
+  onLongPressCell: (habitId: string, dateStr: string) => void;
+  themeColor: string;
+}
+
+const HabitRow = memo(function HabitRow({
+  habit,
+  days,
+  todayStr,
+  onToggle,
+  onHabitClick,
+  onLongPressCell,
+  themeColor,
+}: HabitRowProps) {
+  const { deleteHabit, moveHabit } = useHabits();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  // Pre-compute broken streak state — only recalc when completedDays changes
+  const isBroken = React.useMemo(() => {
+    if (!habit.currentStreak || habit.currentStreak === 0) return false;
     let missedCount = 0;
-    const yesterday = new Date(todayStr);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    for (let i = 0; i < 3; i++) {
-      const d = new Date(yesterday);
-      d.setDate(yesterday.getDate() - i);
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(todayStr + "T00:00:00");
+      d.setDate(d.getDate() - i);
       const dStr = d.toISOString().split("T")[0];
       if (!habit.completedDays?.[dStr]) missedCount++;
     }
+    return missedCount >= 3;
+  }, [habit.completedDays, habit.currentStreak, todayStr]);
 
-    if (missedCount >= 3 && (habit.currentStreak || 0) > 0) {
-      setIsBroken(true);
-      setShowEmpathy(true);
-    }
-  }, [habit.completedDays, todayStr, habit.currentStreak]);
-
-  const handleCellClick = (dateStr: string, currentIntensity: number) => {
-    if (dateStr !== todayStr) return; // Strict: Only allow today's edits
-
-    const isCompleted = currentIntensity === 0;
-    const newIntensity = isCompleted ? 1 : 0;
-    
-    if (isCompleted) {
-      confetti({
-        particleCount: 15,
-        spread: 40,
-        origin: { y: 0.6 },
-        colors: ['#22c55e', '#16a34a']
-      });
-      setIsBroken(false);
-      setShowEmpathy(false);
-    }
-
-    onToggle(habit.id, dateStr, isCompleted, newIntensity);
-  };
-
-  const handleCellDoubleClick = (dateStr: string) => {
-    if (dateStr !== todayStr) return; // Strict: Only today
-    onToggle(habit.id, dateStr, true, 2); // Exceeded
-    confetti({
-      particleCount: 20,
-      spread: 60,
-      colors: ['#FFC107', '#F59E0B']
-    });
-  };
-
-  const getStreakAtDate = (habit: Habit, dateStr: string) => {
-    if (habit.completedDays?.[dateStr] !== 1 && habit.completedDays?.[dateStr] !== 2) return 0;
-    
-    let streak = 0;
-    let current = new Date(dateStr);
-    
-    for (let i = 0; i < 365; i++) {
-      const s = current.toISOString().split("T")[0];
-      const intensity = habit.completedDays?.[s] || 0;
-      
-      if (intensity === 1 || intensity === 2) {
-        streak++;
-        current.setDate(current.getDate() - 1);
-      } else {
-        break;
+  const handleCellClick = useCallback(
+    (dateStr: string, currentIntensity: number) => {
+      if (dateStr !== todayStr) return; // Only today is editable
+      const isCompleted = currentIntensity === 0;
+      if (isCompleted) {
+        confetti({
+          particleCount: 20,
+          spread: 50,
+          origin: { y: 0.65 },
+          colors: ["#22c55e", "#16a34a", "#bbf7d0"],
+          zIndex: 9999,
+        });
       }
-    }
-    return streak;
+      onToggle(habit.id, dateStr, isCompleted, isCompleted ? 1 : 0);
+    },
+    [habit.id, todayStr, onToggle]
+  );
+
+  const handleCellDoubleClick = useCallback(
+    (dateStr: string) => {
+      if (dateStr !== todayStr) return;
+      confetti({
+        particleCount: 35,
+        spread: 70,
+        colors: ["#FFC107", "#F59E0B", "#FEF08A"],
+        zIndex: 9999,
+      });
+      onToggle(habit.id, dateStr, true, 2); // Exceeded
+    },
+    [habit.id, todayStr, onToggle]
+  );
+
+  // Drag handle — touchstart on the grip icon
+  const dragHandleProps = {
+    onMouseDown: () => setIsDragging(true),
+    onMouseUp: () => setIsDragging(false),
+    onTouchStart: () => setIsDragging(true),
+    onTouchEnd: () => setIsDragging(false),
   };
 
   return (
-    <Reorder.Item 
-      value={habit} 
+    <div
+      ref={rowRef}
       className={`
-        ${styles.habitRow} 
-        ${themeColor ? styles[`theme_${themeColor}`] : ""}
-        ${isBroken ? styles.shake : ""}
+        ${styles.habitRow}
+        ${themeColor ? styles[`theme_${themeColor}`] || "" : ""}
+        ${isBroken ? styles.broken : ""}
+        ${isDragging ? styles.dragging : ""}
       `}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ 
-        opacity: 1, 
-        y: 0,
-        x: isBroken ? [0, -4, 4, -4, 4, 0] : 0
-      }}
-      transition={{ 
-        x: isBroken ? { duration: 0.4, repeat: 0 } : { duration: 0.2 }
-      }}
-      exit={{ opacity: 0, y: -10 }}
-      whileDrag={{ 
-        scale: 1.02, 
-        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-        zIndex: 100,
-        pointerEvents: "none" // Allow elementFromPoint to hit targets below
-      }}
-      onDragEnd={(event, info) => {
-        // Find if dropped over another group
-        const target = document.elementFromPoint(info.point.x, info.point.y);
-        const groupRow = target?.closest('[data-group-id]');
-        if (groupRow) {
-          const newGroupId = groupRow.getAttribute('data-group-id');
-          if (newGroupId && newGroupId !== habit.groupId) {
-            // Give a small delay to prevent immediate click triggers
-            setTimeout(() => {
-              if (window.confirm(`Move "${habit.name}" to this group?`)) {
-                moveHabit(habit.id, habit.groupId, newGroupId);
-              }
-            }, 50);
-          }
-        }
-      }}
     >
-      <div className={styles.habitMeta} onClick={() => onHabitClick(habit)}>
+      {/* Left: habit meta */}
+      <div
+        className={styles.habitMeta}
+        onClick={() => !showDeleteConfirm && onHabitClick(habit)}
+      >
         <div className={styles.habitTitleRow}>
+          <span className={styles.dragHandle} title="Drag to reorder" {...dragHandleProps}>
+            ⠿
+          </span>
+          <span className={styles.emoji}>{habit.emoji || "✅"}</span>
           <span className={styles.name}>{habit.name}</span>
-          <span className={styles.emoji}>{habit.emoji}</span>
-          <button 
-            className={styles.deleteHabitBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (window.confirm(`Are you sure you want to delete "${habit.name}"?`)) {
-                deleteHabit(habit.id);
-              }
-            }}
-            title="Delete Habit"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          </button>
-        </div>
-        <div className={styles.xpBar}>
-          <div className={styles.xpFill} style={{ width: `${Math.min(100, (habit.totalCompletions || 0) * 10)}%` }} />
-        </div>
-        <AnimatePresence>
-          {showEmpathy && (
-            <motion.p 
-              className={styles.empathyMsg}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+
+          {/* Delete — inline confirm instead of window.confirm */}
+          {!showDeleteConfirm ? (
+            <button
+              className={styles.deleteHabitBtn}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+              title="Delete habit"
+              aria-label="Delete habit"
             >
-              It's okay — every day is a fresh start 🌱
-            </motion.p>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          ) : (
+            <div className={styles.deleteConfirmRow} onClick={(e) => e.stopPropagation()}>
+              <span className={styles.deleteConfirmLabel}>Delete?</span>
+              <button
+                className={styles.deleteConfirmYes}
+                onClick={() => deleteHabit(habit.id)}
+              >
+                Yes
+              </button>
+              <button
+                className={styles.deleteConfirmNo}
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                No
+              </button>
+            </div>
           )}
-        </AnimatePresence>
+        </div>
+
+        {/* XP progress bar */}
+        <div className={styles.xpBar}>
+          <div
+            className={styles.xpFill}
+            style={{ width: `${Math.min(100, (habit.totalCompletions || 0) * 5)}%` }}
+          />
+        </div>
+
+        {isBroken && (
+          <p className={styles.empathyMsg}>Every day is a fresh start 🌱</p>
+        )}
       </div>
 
+      {/* Right: scrollable cell strip */}
       <div className={styles.cellsRow}>
-        {days.map((day: string) => {
-          const intensity = habit.completedDays?.[day] || 0;
+        {days.map((day) => {
+          const intensity = habit.completedDays?.[day] ?? 0;
           const isFuture = day > todayStr;
+          const isToday = day === todayStr;
           const isDone = intensity === 1;
           const isExceeded = intensity === 2;
           const isMissed = !intensity && day < todayStr;
-          const cellStreak = (isDone || isExceeded) ? getStreakAtDate(habit, day) : 0;
+
+          // Only compute streak for completed cells — avoids O(n×31×365)
+          const cellStreak =
+            (isDone || isExceeded) && isToday
+              ? computeStreakAtDate(habit.completedDays || {}, day)
+              : 0;
 
           return (
-            <div 
-              key={day} 
-              className={`
-                ${styles.cell} 
-                ${isFuture ? styles.future : ""} 
-                ${day === todayStr ? styles.today : ""}
-                ${isDone ? styles.done : ""} 
-                ${isExceeded ? styles.exceeded : ""}
-                ${isMissed ? styles.missed : ""}
-              `}
+            <div
+              key={day}
+              className={[
+                styles.cell,
+                isFuture ? styles.future : "",
+                isToday ? styles.today : "",
+                isDone ? styles.done : "",
+                isExceeded ? styles.exceeded : "",
+                isMissed ? styles.missed : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
               onClick={() => handleCellClick(day, intensity)}
               onDoubleClick={() => handleCellDoubleClick(day)}
               onContextMenu={(e) => {
@@ -286,21 +335,26 @@ function HabitRow({ habit, days, todayStr, onToggle, onHabitClick, onLongPressCe
                 onLongPressCell(habit.id, day);
               }}
             >
-              {(isDone || isExceeded) && cellStreak > 0 && (
-                <span className={styles.cellStreak}>
-                  {cellStreak}
-                </span>
+              {cellStreak > 1 && (
+                <span className={styles.cellStreak}>{cellStreak}</span>
               )}
-              {isMissed && (
-                <span className={styles.missedCross}>✖</span>
-              )}
-              {isDone && <div className={styles.ripple} />}
+              {isMissed && <span className={styles.missedCross}>✕</span>}
             </div>
           );
         })}
         <div className={styles.endSpacer} />
       </div>
-
-    </Reorder.Item>
+    </div>
   );
-}
+},
+// Only re-render if the habit's completedDays, name, or emoji changed
+(prev, next) =>
+  prev.habit.id === next.habit.id &&
+  prev.habit.completedDays === next.habit.completedDays &&
+  prev.habit.name === next.habit.name &&
+  prev.habit.emoji === next.habit.emoji &&
+  prev.habit.totalCompletions === next.habit.totalCompletions &&
+  prev.todayStr === next.todayStr &&
+  prev.days === next.days &&
+  prev.themeColor === next.themeColor
+);

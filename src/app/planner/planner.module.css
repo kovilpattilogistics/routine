@@ -1,59 +1,92 @@
 .v2Container {
-  min-height: 100vh;
+  min-height: 100svh;
   background: #FFFFFF;
   color: #37352F;
-  padding-bottom: 160px;
-  position: relative;
+  padding-bottom: 80px;
 }
 
-.loadingContainer {
-  height: 100vh;
+/* ── Skeleton loader ─────────────────────────────────────── */
+.skeletonHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #FFFFFF;
+  gap: 14px;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid #EDEDEB;
 }
 
-.loadingText {
-  font-size: 16px;
-  font-weight: 700;
-  color: #888;
-  letter-spacing: 1px;
+.skeletonAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.v2Main {
-  max-width: 1000px;
-  margin: 32px auto 0;
-}
-
-.accordionGridWrap {
-  padding: 0 16px;
+.skeletonLines {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 8px;
+  flex: 1;
 }
 
-.addHabitBtn {
+.skeletonLine {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.skeletonBody {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.skeletonGroup {
+  height: 64px;
+  border-radius: 18px;
+  width: 100%;
+}
+
+/* ── Main content ────────────────────────────────────────── */
+.v2Main {
+  max-width: 1000px;
+  margin: 28px auto 0;
+}
+
+/* ── Inner grid wrap per accordion group ─────────────────── */
+.accordionGridWrap {
+  padding: 16px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+/* ── Add Habit trigger button ────────────────────────────── */
+.addHabitBtn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   background: transparent;
-  border: none;
+  border: 1.5px dashed #D3D1CB;
   color: #9b9a97;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
-  width: fit-content;
+  border-radius: 10px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .addHabitBtn:hover {
-  background: #F1F1EF;
+  background: #F7F7F5;
+  border-color: #787774;
   color: #37352F;
 }
 
-.addHabitBtn span { font-size: 18px; }
-
+.addHabitBtn span {
+  font-size: 16px;
+  line-height: 1;
+}

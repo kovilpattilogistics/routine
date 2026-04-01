@@ -1,134 +1,171 @@
+/* ── Hero: pure CSS gradient, no external image fetch ───── */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh; /* use svh for mobile browsers with chrome bars */
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=2070&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
   overflow: hidden;
+
+  /* Rich dark gradient — instant paint, no network request */
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 10% 80%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
+    linear-gradient(135deg, #0F0F1A 0%, #181828 50%, #0D0D18 100%);
 }
 
-.overlay {
+/* Subtle dot-grid pattern via repeating-gradient */
+.hero::before {
+  content: "";
   position: absolute;
   inset: 0;
-  background: rgba(13, 13, 18, 0.72);
-  backdrop-filter: blur(2px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
 }
+
+/* Glow orbs — CSS only, GPU composited */
+.hero::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.overlay { display: none; } /* No longer needed */
 
 .content {
   position: relative;
   z-index: 1;
-  max-width: 600px;
+  max-width: 620px;
   padding: 48px 32px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  animation: fadeUp 0.9s ease both;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .eyebrow {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.35em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
-  animation: fadeUp 0.9s ease 0.1s both;
+  color: rgba(139, 92, 246, 0.85);
+  background: rgba(139, 92, 246, 0.12);
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
 .headline {
-  font-size: clamp(36px, 6vw, 60px);
-  font-weight: 700;
-  line-height: 1.15;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  line-height: 1.1;
   color: #ffffff;
-  letter-spacing: -0.02em;
-  animation: fadeUp 0.9s ease 0.2s both;
+  letter-spacing: -0.03em;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.headline span {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .sub {
   font-size: 17px;
-  color: rgba(255, 255, 255, 0.7);
-  max-width: 520px;
-  line-height: 1.6;
-  animation: fadeUp 0.9s ease 0.3s both;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 480px;
+  line-height: 1.65;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
 }
 
-/* CTA Button */
+/* ── CTA Button ──────────────────────────────────────────── */
 .cta {
-  margin-top: 12px;
+  margin-top: 8px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 15px 32px;
-  background: transparent;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  padding: 15px 34px;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: none;
   border-radius: 50px;
   color: #ffffff;
   font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
   text-decoration: none;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.3s ease, color 0.3s ease;
-  animation: fadeUp 0.9s ease 0.45s both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+  will-change: transform;
 }
 
 .cta::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s;
 }
 
 .cta:hover {
-  border-color: rgba(255, 255, 255, 0.75);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.55);
 }
 
-.cta:hover::before {
-  opacity: 1;
-}
+.cta:hover::before { opacity: 1; }
 
-.ctaText {
-  position: relative;
-  z-index: 1;
-}
+.cta:active { transform: translateY(0); }
+
+.ctaText, .ctaArrow { position: relative; z-index: 1; }
 
 .ctaArrow {
-  position: relative;
-  z-index: 1;
   display: inline-block;
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
 }
 
-.cta:hover .ctaArrow {
-  transform: translateX(5px);
+.cta:hover .ctaArrow { transform: translateX(4px); }
+
+/* Sign-in link */
+.signin {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.44s both;
 }
 
-/* Pulse ring animation */
-.cta::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 50px;
-  border: 1px solid rgba(99, 102, 241, 0.6);
-  opacity: 0;
-  animation: pulse 2.5s ease-in-out 1.5s infinite;
+.signin a {
+  color: rgba(167, 139, 250, 0.85);
+  text-decoration: none;
+  font-weight: 600;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.6; }
-  70% { transform: scale(1.06); opacity: 0; }
-  100% { transform: scale(1.06); opacity: 0; }
+.signin a:hover { text-decoration: underline; }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .content, .eyebrow, .headline, .sub, .cta, .signin {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

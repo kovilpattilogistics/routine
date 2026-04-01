@@ -50,9 +50,10 @@ export function AddHabitInline({ onSave, onCancel, groupName = "" }: AddHabitInl
     if (!currentEmojis.includes(selectedEmoji)) {
       setSelectedEmoji(currentEmojis[0]);
     }
-  }, [currentEmojis, selectedEmoji]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, groupName]); // Intentionally only run when name/group change — not selectedEmoji
 
-  const [frequency, setFrequency] = useState("daily"); // daily, weekdays, custom
+  const [frequency, setFrequency] = useState("daily");
   const [customDays, setCustomDays] = useState<string[]>(DAYS);
 
   const handleSave = () => {
@@ -62,13 +63,23 @@ export function AddHabitInline({ onSave, onCancel, groupName = "" }: AddHabitInl
   };
 
   const toggleDay = (day: string) => {
-    setCustomDays(prev => 
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    setCustomDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
 
+  // Keyboard: Enter = save, Escape = cancel
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && name.trim()) {
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === "Escape") {
+      onCancel();
+    }
+  };
+
   return (
-    <motion.div 
+    <motion.div
       className={styles.container}
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: "auto", opacity: 1 }}
@@ -76,22 +87,24 @@ export function AddHabitInline({ onSave, onCancel, groupName = "" }: AddHabitInl
     >
       <div className={styles.topRow}>
         <div className={styles.emojiPicker}>
-          {currentEmojis.slice(0, 8).map(e => (
-            <button 
-              key={e} 
+          {currentEmojis.slice(0, 8).map((e) => (
+            <button
+              key={e}
               className={`${styles.emojiBtn} ${selectedEmoji === e ? styles.activeEmoji : ""}`}
               onClick={() => setSelectedEmoji(e)}
+              type="button"
             >
               {e}
             </button>
           ))}
         </div>
-        <input 
+        <input
           autoFocus
           className={styles.input}
           placeholder="Habit name..."
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </div>
 

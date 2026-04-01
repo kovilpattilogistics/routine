@@ -1,47 +1,117 @@
 :root {
-  /* Notion Light Aesthetic */
+  /* ── Color tokens ──────────────────────────────────────── */
   --background: #FFFFFF;
   --foreground: #37352F;
-  
+
   --card-bg: #F7F7F5;
-  --card-border: #EEEEEC;
-  
+  --card-border: #EDEDEB;
+
   --text-primary: #37352F;
   --text-muted: #787774;
   --text-faint: #ACABA9;
-  
-  /* Accents (Softer / Pastels for Light Mode) */
-  --accent-gold: #FACC15;
-  --accent-green-start: #DAF0E3;
-  --accent-green-end: #C5E9D6;
+
+  /* Accents */
+  --accent-gold: #D97706;
+  --accent-green-start: #22c55e;
+  --accent-green-end: #16a34a;
+  --accent-purple: #7c3aed;
 
   --cell-empty: #F1F1EF;
   --cell-missed: #FFE2E5;
 
-  --radius-lg: 24px;
-  --radius-md: 16px;
+  /* Theme color CSS variables (used instead of style jsx global) */
+  --theme-red: #FFE2E5;
+  --theme-blue: #E1F0FF;
+  --theme-green: #DAF0E3;
+  --theme-purple: #E8DEEE;
+  --theme-orange: #FDECC8;
+  --theme-pink: #F5E0E9;
+  --theme-teal: #DDF3F1;
+  --theme-gold: #FBF3DB;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
   --radius-sm: 8px;
+}
+
+/* ── Base Reset ──────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent layout shift from scrollbar on page transitions */
+  scrollbar-gutter: stable;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-  margin: 0;
-  padding: 0;
+  /* System font stack — no Google Fonts load needed in globals */
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
 }
 
-* {
-  box-sizing: border-box;
+/* ── Accessible focus rings ──────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
 }
 
-/* Animations */
+/* ── Scrollbar global styling ────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D3D1CB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9b9a97; }
+
+/* ── Global animations ───────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.35s ease-out both;
+}
+
+/* ── Skeleton loading shimmer ────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #F1F1EF 25%,
+    #E8E8E5 50%,
+    #F1F1EF 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+  border-radius: 8px;
+}
+
+/* ── Reduce motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
