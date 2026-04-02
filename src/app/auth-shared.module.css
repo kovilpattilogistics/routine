@@ -1,0 +1,34 @@
+/* ── Shared dark glassmorphism background (same as login/register) ── */
+.authBg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 65% 10%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 75% at 5%  85%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
+    linear-gradient(155deg, #0c0c14 0%, #14141f 50%, #0a0a12 100%);
+  z-index: 0;
+}
+
+/* Subtle dot-grid texture */
+.authBg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 26px 26px;
+  pointer-events: none;
+}
+
+/* Ambient glow top-right */
+.authBg::after {
+  content: "";
+  position: absolute;
+  top: -15%;
+  right: -10%;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}

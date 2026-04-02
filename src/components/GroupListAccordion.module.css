@@ -2,29 +2,29 @@
 .accordionContainer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   width: 100%;
   padding: 0 16px;
   margin-bottom: 40px;
 }
 
+/* ── Group Row Wrapper ───────────────────────────────────── */
 .groupRowWrapper {
   background: #fff;
-  border-radius: 18px;
-  border: 1px solid #EDEDEB;
+  border-radius: 12px;
+  border: 1px solid #F0F0EC;
   overflow: hidden;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
-  will-change: box-shadow;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .groupRowWrapper.active {
-  border-color: #C9C9C5;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  border-color: #E0DFD9;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* ── Group Row Header ────────────────────────────────────── */
+/* ── Group Header Row ────────────────────────────────────── */
 .groupRow {
-  padding: 14px 18px;
+  padding: 12px 14px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -32,211 +32,224 @@
   user-select: none;
 }
 
-/* CSS progress stripe — pure composited, no JS animation */
+/* Progress stripe — subtle background fill */
 .progressStripe {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   background: currentColor;
-  opacity: 0.06;
-  transition: width 0.4s ease;
+  opacity: 0.04;
+  transition: width 0.5s ease;
   pointer-events: none;
-  border-radius: 0;
 }
 
 .rowLayout {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   position: relative;
   z-index: 1;
 }
 
+/* ── Left accent bar (Notion-style active indicator) ─────── */
+.accentBar {
+  width: 3px;
+  height: 28px;
+  border-radius: 2px;
+  background: transparent;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.accentBarActive {
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* ── Emoji ───────────────────────────────────────────────── */
 .emoji {
-  font-size: 22px;
-  width: 42px;
-  height: 42px;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.03);
   flex-shrink: 0;
 }
 
+/* ── Meta ────────────────────────────────────────────────── */
 .meta { flex: 1; min-width: 0; }
 
 .name {
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 600;
   color: #37352F;
-  margin-bottom: 1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .badge {
-  font-size: 10px;
-  color: #9b9a97;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 11px;
+  color: #A0A09C;
+  font-weight: 500;
+  margin-top: 1px;
 }
 
+/* ── Right side ──────────────────────────────────────────── */
 .rightSide {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-/* ── Delete button ───────────────────────────────────────── */
+.progressText {
+  font-size: 11px;
+  font-weight: 600;
+  color: #AEADA9;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── Delete button — arm & fire ──────────────────────────── */
 .deleteGroupBtn {
   opacity: 0;
   background: none;
   border: none;
-  color: #9b9a97;
+  color: #C0BDB9;
   padding: 6px;
   border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.2s, background 0.2s, color 0.2s;
+  transition: opacity 0.15s, background 0.15s, color 0.15s, transform 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  position: relative;
 }
 
+/* Show on hover / focus-within */
 .groupRowWrapper:hover .deleteGroupBtn,
 .groupRowWrapper:focus-within .deleteGroupBtn {
   opacity: 1;
 }
 
-.deleteGroupBtn:hover {
-  background: #FFE2E5;
-  color: #eb5757;
+/* Armed state — red, fully visible, pulsing */
+.deleteGroupBtn.deleteArmed {
+  opacity: 1;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
 }
 
-/* ── Inline delete confirmation ───────────────────────────── */
-.deleteConfirmInline {
+/* Pulsing ring around armed icon */
+.armedRing {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #fff;
-  border: 1px solid #EDEDEB;
-  padding: 4px 8px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  justify-content: center;
+  border-radius: 50%;
+  animation: armedPulse 0.8s ease-in-out infinite alternate;
 }
 
-.deleteConfirmLabel {
-  font-size: 12px;
+@keyframes armedPulse {
+  from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
+  to   { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+/* Tooltip shown when armed */
+.armedTooltip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 10px;
   font-weight: 600;
-  color: #37352F;
+  color: rgba(239, 68, 68, 0.8);
+  text-align: center;
+  padding: 3px 6px;
+  background: rgba(239, 68, 68, 0.05);
+  border-top: 1px solid rgba(239, 68, 68, 0.1);
+  animation: tooltipIn 0.15s ease both;
+  pointer-events: none;
+  letter-spacing: 0.01em;
 }
 
-.confirmYes {
-  background: #eb5757;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s;
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-.confirmYes:hover { background: #c0392b; }
-
-.confirmNo {
-  background: #F1F1EF;
-  color: #37352F;
-  border: none;
-  border-radius: 5px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.confirmNo:hover { background: #E4E3DF; }
 
 /* ── Chevron ─────────────────────────────────────────────── */
 .chevron {
   display: flex;
   align-items: center;
   color: #C0BDB9;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-.chevronOpen {
-  transform: rotate(180deg);
-}
+.chevronOpen { transform: rotate(180deg); }
 
-/* ── Accordion expansion — CSS grid rows (no layout thrash) ─ */
+/* ── Accordion expansion — CSS grid rows ─────────────────── */
 .gridExpansion {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: grid-template-rows;
 }
 
-.expansionOpen {
-  grid-template-rows: 1fr;
-}
+.expansionOpen { grid-template-rows: 1fr; }
 
-/* Inner div must have overflow:hidden for grid trick to work */
 .gridInternal {
   overflow: hidden;
-  border-top: 1px solid #EDEDEB;
-  background: #fff;
+  border-top: 1px solid #F0F0EC;
+  background: #FAFAF8;
 }
 
-/* ── Add Group Button ────────────────────────────────────── */
+/* ── Add Group button — Notion-style dashed ──────────────── */
 .addGroupRow {
   background: transparent;
-  border: 1.5px dashed #D3D1CB;
-  color: #9b9a97;
-  padding: 14px 18px;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 14px;
+  border: none;
+  color: #AEADA9;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  gap: 8px;
+  transition: background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
+  width: 100%;
 }
 
 .addGroupRow:hover {
-  border-color: #787774;
-  color: #37352F;
   background: #F7F7F5;
+  color: #37352F;
 }
 
-.plus { font-size: 18px; }
+.plus {
+  font-size: 16px;
+  line-height: 1;
+  color: #AEADA9;
+}
 
 /* ── Theme color accents ─────────────────────────────────── */
-.theme_red    { color: #ef4444; background-color: #FFF5F5; }
-.theme_blue   { color: #3b82f6; background-color: #F0F7FF; }
-.theme_green  { color: #22c55e; background-color: #F0FDF4; }
-.theme_purple { color: #a855f7; background-color: #F5F0FF; }
-.theme_orange { color: #f97316; background-color: #FFF8F0; }
-.theme_pink   { color: #ec4899; background-color: #FDF0F6; }
-.theme_teal   { color: #14b8a6; background-color: #F0FDFA; }
-.theme_gold   { color: #d97706; background-color: #FFFBF0; }
+.theme_red    { color: #ef4444; background-color: #FFFCFC; }
+.theme_blue   { color: #3b82f6; background-color: #FAFCFF; }
+.theme_green  { color: #22c55e; background-color: #FAFFFC; }
+.theme_purple { color: #a855f7; background-color: #FDFAFF; }
+.theme_orange { color: #f97316; background-color: #FFFCFA; }
+.theme_pink   { color: #ec4899; background-color: #FFFAFD; }
+.theme_teal   { color: #14b8a6; background-color: #FAFFFD; }
+.theme_gold   { color: #d97706; background-color: #FFFDF5; }
 
-/* Reduce motion support */
+/* ── Reduce motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .gridExpansion,
-  .chevron,
-  .progressStripe,
-  .groupRowWrapper {
-    transition: none !important;
-  }
+  .gridExpansion, .chevron, .progressStripe,
+  .armedRing, .armedTooltip { transition: none !important; animation: none !important; }
 }

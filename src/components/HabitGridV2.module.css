@@ -89,23 +89,24 @@
   margin: 0;
 }
 
-/* ── Habit Row ───────────────────────────────────────────── */
+/* ── Habit Row — Notion-style minimal ───────────────────── */
 .habitRow {
-  background: #fff;
-  border-radius: 14px;
-  padding: 8px;
-  border: 1px solid #EDEDEB;
-  transition: box-shadow 0.2s ease;
-  will-change: box-shadow;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  will-change: border-color;
 }
 
 .habitRow:hover {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: #FAFAFA;
+  border-color: #F0F0EC;
 }
 
 .habitRow.dragging {
   opacity: 0.6;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Sticky Meta Column ──────────────────────────────────── */
@@ -118,11 +119,17 @@
   position: sticky;
   left: 0;
   z-index: 5;
-  background: #fff;
-  padding: 8px 10px 8px 12px;
-  border-radius: 10px;
+  /* Must be opaque so content doesn't bleed through when scrolling */
+  background: #FAFAF8;
+  padding: 6px 10px 6px 10px;
+  border-radius: 8px;
   transition: background 0.15s;
   min-width: 0;
+}
+
+/* On hover show the bg clearly as a unit */
+.habitRow:hover .habitMeta {
+  background: #F5F5F2;
 }
 
 .theme_red    .habitMeta { background: #FFF5F5; }
@@ -167,14 +174,14 @@
   flex: 1;
 }
 
-/* ── Delete buttons ──────────────────────────────────────── */
+/* ── Delete buttons — arm & fire ─────────────────────────── */
 .deleteHabitBtn {
   opacity: 0;
   background: none;
   border: none;
   color: #C0BDB9;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 4px 5px;
+  border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -188,46 +195,25 @@
   opacity: 1;
 }
 
-.deleteHabitBtn:hover {
-  background: #FFE2E5;
-  color: #eb5757;
+.deleteHabitBtn.deleteArmed {
+  opacity: 1;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 50%;
 }
 
-/* Inline confirm row */
-.deleteConfirmRow {
+/* Pulsing ring when armed */
+.armedRing {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-left: auto;
+  justify-content: center;
+  border-radius: 50%;
+  animation: armedPulse 0.8s ease-in-out infinite alternate;
 }
 
-.deleteConfirmLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: #37352F;
-  white-space: nowrap;
-}
-
-.deleteConfirmYes {
-  background: #eb5757;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.deleteConfirmNo {
-  background: #F1F1EF;
-  color: #37352F;
-  border: none;
-  border-radius: 5px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
+@keyframes armedPulse {
+  from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  to   { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
 }
 
 /* ── XP bar ──────────────────────────────────────────────── */
