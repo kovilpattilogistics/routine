@@ -96,13 +96,13 @@ export function MonkHabitSheet({ habit, onClose }: MonkHabitSheetProps) {
         <div className={styles.aiSection}>
           {!aiInsight && !loadingAi && (
             <button className={styles.aiBtn} onClick={handleFetchAiTip}>
-              ✨ Tap to get AI insight for this habit
+              ✨ Tap for personal guidance
             </button>
           )}
-          {loadingAi && <div className={styles.shimmer}>Analyzing Habit Pattern...</div>}
+          {loadingAi && <div className={styles.shimmer}>Reflecting on your routine...</div>}
           {aiInsight && !loadingAi && (
             <div className={styles.aiText}>
-              <strong>Coach Insight: </strong>
+              <strong>Guidance: </strong>
               <p>{aiInsight}</p>
             </div>
           )}

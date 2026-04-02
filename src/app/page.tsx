@@ -33,7 +33,7 @@ export default function LandingPage() {
             </svg>
           </div>
           <span className={styles.logoText}>
-            MonkGrid <span className={styles.vTag}>v2</span>
+            Monk
           </span>
         </div>
 
@@ -54,15 +54,15 @@ export default function LandingPage() {
         <div className={styles.features}>
           <div className={styles.featureRow}>
             <span className={styles.featureIcon}>📅</span>
-            <span>31-day habit grid with streak tracking</span>
+            <span>Monthly habit tracker with streak tracking</span>
           </div>
           <div className={styles.featureRow}>
             <span className={styles.featureIcon}>🏆</span>
-            <span>XP & level system to keep you motivated</span>
+            <span>Progress & milestones to keep you motivated</span>
           </div>
           <div className={styles.featureRow}>
-            <span className={styles.featureIcon}>🤖</span>
-            <span>AI-powered daily insights</span>
+            <span className={styles.featureIcon}>🌱</span>
+            <span>Daily guidance & personal insights</span>
           </div>
         </div>
 

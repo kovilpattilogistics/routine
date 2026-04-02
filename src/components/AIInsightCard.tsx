@@ -116,7 +116,7 @@ export function AIInsightCard({ profile, habits, latestAction }: AIInsightCardPr
           </svg>
         </div>
         <span className={styles.title}>
-          {loading ? "AI is thinking..." : "AI Coach"}
+          {loading ? "Finding focus..." : "Daily Guide"}
         </span>
         {insightData?.focus && !loading && (
           <span className={styles.focusTag}>{insightData.focus}</span>

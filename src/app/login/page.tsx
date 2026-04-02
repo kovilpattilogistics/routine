@@ -72,7 +72,7 @@ export default function LoginPage() {
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span className={styles.logoText}>MonkGrid <span className={styles.vTag}>v2</span></span>
+          <span className={styles.logoText}>Monk</span>
         </div>
 
         <div className={styles.heading}>

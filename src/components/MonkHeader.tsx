@@ -88,7 +88,7 @@ export function MonkHeader({
             </svg>
             <span>Past data</span>
           </button>
-          <div className={styles.xpNumber}>{totalXP} XP</div>
+          <div className={styles.xpNumber}>{totalXP} Focus</div>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export function MonkHeader({
       </div>
       <div className={styles.xpNextLabel}>
         {progress.currentXPInLevel} /{" "}
-        {progress.currentXPInLevel + progress.xpRequiredForNext} XP to{" "}
+        {progress.currentXPInLevel + progress.xpRequiredForNext} Focus to reach{" "}
         {progress.nextLevelTitle}
       </div>
     </div>

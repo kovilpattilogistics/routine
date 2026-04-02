@@ -293,7 +293,7 @@ export default function OnboardingPage() {
               <button type="button" className={styles.backBtn} onClick={() => advance(5)}>← Back</button>
               <button type="submit" className={styles.doneBtn} disabled={submitting}>
                 {submitting ? <span className={styles.spinner} /> : null}
-                {submitting ? "Setting up…" : "Let's go 🚀"}
+                {submitting ? "Preparing your space…" : "Let's go 🚀"}
               </button>
             </div>
             {!firstTask.trim() && (
