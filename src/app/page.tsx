@@ -19,67 +19,29 @@ export default function LandingPage() {
   if (loading) return null;
 
   return (
-    <div className={styles.page}>
-      {/* Background — same CSS gradient as login/register */}
-      <div className={styles.bg} />
+    <main className={styles.hero}>
+      <div className={styles.content}>
+        <p className={styles.eyebrow}>Your day. Your rules.</p>
 
-      {/* Glass card — identical structure to login/register */}
-      <div className={styles.card}>
-        {/* Logo — same as auth pages */}
-        <div className={styles.logoMark}>
-          <div className={styles.premiumLogo}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <span className={styles.logoText}>
-            Monk
-          </span>
-        </div>
+        <h1 className={styles.headline}>
+          Build the habits that<br />
+          build <span>your life.</span>
+        </h1>
 
-        {/* Badge */}
-        <span className={styles.eyebrow}>Your day. Your rules.</span>
+        <p className={styles.sub}>
+          A calm space to plan your day, track your goals, and show up — every single day.
+        </p>
 
-        {/* Heading */}
-        <div className={styles.heading}>
-          <h1 className={styles.title}>
-            Build habits that<br />build <span>your life.</span>
-          </h1>
-          <p className={styles.subtitle}>
-            A calm space to plan your day, track your goals,<br />and show up — every single day.
-          </p>
-        </div>
-
-        {/* Feature teasers */}
-        <div className={styles.features}>
-          <div className={styles.featureRow}>
-            <span className={styles.featureIcon}>📅</span>
-            <span>Monthly habit tracker with streak tracking</span>
-          </div>
-          <div className={styles.featureRow}>
-            <span className={styles.featureIcon}>🏆</span>
-            <span>Progress & milestones to keep you motivated</span>
-          </div>
-          <div className={styles.featureRow}>
-            <span className={styles.featureIcon}>🌱</span>
-            <span>Daily guidance & personal insights</span>
-          </div>
-        </div>
-
-        <div className={styles.divider} />
-
-        {/* Primary CTA */}
-        <Link href="/register" className={styles.ctaPrimary}>
-          <span>Get Started — It&#39;s free</span>
+        <Link href="/register" className={styles.cta}>
+          <span className={styles.ctaText}>Get Started — It's free</span>
           <span className={styles.ctaArrow}>→</span>
         </Link>
 
-        {/* Already have account */}
-        <p className={styles.switchText}>
+        <p className={styles.signin}>
           Already have an account?{" "}
-          <Link href="/login" className={styles.switchLink}>Sign in</Link>
+          <Link href="/login">Sign in</Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

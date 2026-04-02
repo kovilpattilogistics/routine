@@ -1,246 +1,171 @@
-/* ──────────────────────────────────────────────────────────
-   Landing page — matches exact visual language of login/register
-   ────────────────────────────────────────────────────────── */
-
-/* ── Full-page centering layout ─────────────────────────── */
-.page {
-  min-height: 100svh;
+/* ── Hero: pure CSS gradient, no external image fetch ───── */
+.hero {
+  position: relative;
+  min-height: 100svh; /* use svh for mobile browsers with chrome bars */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  position: relative;
   overflow: hidden;
-}
 
-/* ── Background — same CSS gradient as login/register ───── */
-.bg {
-  position: fixed;
-  inset: 0;
+  /* Rich dark gradient — instant paint, no network request */
   background:
-    radial-gradient(ellipse 70% 60% at 65% 10%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 75% at 5%  85%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
-    linear-gradient(155deg, #0c0c14 0%, #14141f 50%, #0a0a12 100%);
-  z-index: 0;
+    radial-gradient(ellipse 80% 60% at 60% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 10% 80%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
+    linear-gradient(135deg, #0F0F1A 0%, #181828 50%, #0D0D18 100%);
 }
 
-/* Dot-grid texture (same as login/register) */
-.bg::before {
+/* Subtle dot-grid pattern via repeating-gradient */
+.hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 26px 26px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
 }
 
-/* Ambient glow orb */
-.bg::after {
+/* Glow orbs — CSS only, GPU composited */
+.hero::after {
   content: "";
   position: absolute;
-  top: -15%;
-  right: -10%;
-  width: 560px;
-  height: 560px;
+  top: -10%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
-  filter: blur(50px);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
 }
 
-/* ── Content card — same glass card as login/register ────── */
-.card {
+.overlay { display: none; } /* No longer needed */
+
+.content {
   position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 400px;
-  background: rgba(20, 20, 28, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 48px 36px 52px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  animation: cardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  z-index: 1;
+  max-width: 620px;
+  padding: 48px 32px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
+  gap: 20px;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(18px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Logo mark — identical to login/register ─────────────── */
-.logoMark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 36px;
-}
-
-.premiumLogo {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: rgba(99, 102, 241, 0.18);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(167, 139, 250, 0.9);
-  flex-shrink: 0;
-}
-
-.logoText {
-  font-size: 17px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-}
-
-.vTag {
-  font-size: 10px;
+.eyebrow {
+  font-size: 12px;
   font-weight: 600;
-  color: rgba(167, 139, 250, 0.7);
-  margin-left: 3px;
-  vertical-align: super;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(139, 92, 246, 0.85);
+  background: rgba(139, 92, 246, 0.12);
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
-/* ── Heading ─────────────────────────────────────────────── */
-.heading {
-  margin-bottom: 32px;
-  width: 100%;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: 700;
+.headline {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
   letter-spacing: -0.03em;
-  color: #fff;
-  line-height: 1.2;
-  margin-bottom: 10px;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
 
-.title span {
-  background: linear-gradient(135deg, #a78bfa, #818cf8);
+.headline span {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.subtitle {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.48);
-  font-weight: 400;
-  line-height: 1.55;
+.sub {
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 480px;
+  line-height: 1.65;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
 }
 
-/* ── Eyebrow pill badge ──────────────────────────────────── */
-.eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: rgba(167, 139, 250, 0.85);
-  background: rgba(99, 102, 241, 0.12);
-  padding: 5px 14px;
-  border-radius: 50px;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  margin-bottom: 20px;
-  display: inline-block;
-}
-
-/* ── CTA buttons — same style as login submit button ─────── */
-.ctaPrimary {
-  width: 100%;
-  padding: 15px;
-  margin-top: 4px;
-  background: rgba(99, 102, 241, 0.85);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border-radius: 50px;
-  border: 1.5px solid rgba(99, 102, 241, 0.4);
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
+/* ── CTA Button ──────────────────────────────────────────── */
+.cta {
+  margin-top: 8px;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 15px 34px;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: none;
+  border-radius: 50px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
   text-decoration: none;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+  will-change: transform;
 }
 
-.ctaPrimary:hover {
-  background: rgba(99, 102, 241, 1);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.45);
+.cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-.ctaPrimary:active { transform: scale(0.98); }
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.55);
+}
+
+.cta:hover::before { opacity: 1; }
+
+.cta:active { transform: translateY(0); }
+
+.ctaText, .ctaArrow { position: relative; z-index: 1; }
 
 .ctaArrow {
   display: inline-block;
-  transition: transform 0.2s;
+  transition: transform 0.25s ease;
 }
 
-.ctaPrimary:hover .ctaArrow { transform: translateX(3px); }
+.cta:hover .ctaArrow { transform: translateX(4px); }
 
-/* ── Sign-in text link ───────────────────────────────────── */
-.switchText {
-  margin-top: 8px;
+/* Sign-in link */
+.signin {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.4);
-  text-align: center;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.44s both;
 }
 
-.switchLink {
-  font-weight: 600;
-  color: #fff;
+.signin a {
+  color: rgba(167, 139, 250, 0.85);
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.2s;
+  font-weight: 600;
 }
 
-.switchLink:hover { border-bottom-color: #fff; }
+.signin a:hover { text-decoration: underline; }
 
-/* ── Feature teasers ─────────────────────────────────────── */
-.features {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  margin: 28px 0 4px;
-}
-
-.featureRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: left;
-}
-
-.featureIcon {
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-/* ── Divider ─────────────────────────────────────────────── */
-.divider {
-  width: 100%;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 24px 0;
-}
-
-/* ── Reduce motion ───────────────────────────────────────── */
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .card { animation: none; opacity: 1; transform: none; }
+  .content, .eyebrow, .headline, .sub, .cta, .signin {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
