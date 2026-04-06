@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DatabaseService, UserProfile } from "@/services/DatabaseService";
+import { RoutineGeneratorService } from "@/services/RoutineGeneratorService";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./profile.module.css";
@@ -75,6 +76,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [rerollingAvatar, setRerollingAvatar] = useState(false);
+  
+  // Generator States
+  const [generating, setGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState("");
 
   // Edit States
   const [editAge, setEditAge] = useState("");
@@ -180,6 +185,30 @@ export default function ProfilePage() {
     }
   };
 
+  const handleGenerateRoutine = async () => {
+    if (!user || !profile || generating) return;
+    setGenerating(true);
+    
+    try {
+      setGenerationStep("Analyzing profile metrics...");
+      await new Promise(r => setTimeout(r, 800));
+      
+      setGenerationStep("Building Morning Momentum...");
+      await new Promise(r => setTimeout(r, 700));
+      
+      setGenerationStep("Mapping Fitness Goals...");
+      await new Promise(r => setTimeout(r, 700));
+      
+      setGenerationStep("Finalizing Planner...");
+      await RoutineGeneratorService.generateCustomRoutine(user.uid, profile);
+      
+      router.push("/planner");
+    } catch (e) {
+      setSaveError("Failed to generate routine. Try again.");
+      setGenerating(false);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     router.push("/");
@@ -236,6 +265,25 @@ export default function ProfilePage() {
 
         {saveError && <p className={styles.saveError} style={{marginBottom: "20px"}}>{saveError}</p>}
         <div className={styles.divider} style={{marginTop: 0}} />
+
+        {/* Generate Custom Routine Banner */}
+        {!isEditing && (
+            <div className={styles.generateBanner}>
+                <div className={styles.genContent}>
+                    <h3 className={styles.genTitle}>✨ Build My Smart Routine</h3>
+                    <p className={styles.genDesc}>Our smart engine will analyze your lifestyle metrics to construct a personalized plan. Be sure to edit your profile below first!</p>
+                </div>
+                <button 
+                  className={styles.genBtn} 
+                  onClick={handleGenerateRoutine}
+                  disabled={generating}
+                >
+                  {generating ? (
+                    <><span className={styles.spinner} style={{width: 14, height: 14, borderLeftColor: "#111", borderBottomColor: "#111", borderRightColor: "#111", borderTopColor: "transparent" }} /> {generationStep}</>
+                  ) : "Generate Plan →"}
+                </button>
+            </div>
+        )}
 
         {/* Journey snapshot */}
         <section className={styles.section} style={{ marginBottom: "24px" }}>

@@ -141,6 +141,66 @@
   margin: 24px 0;
 }
 
+/* AI Generator Banner */
+.generateBanner {
+  background: linear-gradient(135deg, #1e1e24 0%, #15151a 100%);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.genContent {
+  z-index: 1;
+}
+
+.genTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.genDesc {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+.genBtn {
+  align-self: flex-start;
+  z-index: 1;
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.genBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #f3f4f6;
+}
+
+.genBtn:disabled {
+  opacity: 0.8;
+  cursor: wait;
+}
+
 /* Sections */
 .section { margin-bottom: 0; }
 
