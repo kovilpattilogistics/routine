@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import { getMessaging, Messaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -32,6 +33,15 @@ if (typeof window !== "undefined") {
 }
 
 export const db: Firestore = firestoreDb;
+
+export let messaging: Messaging | null = null;
+if (typeof window !== "undefined") {
+  try {
+    messaging = getMessaging(app);
+  } catch (e) {
+    // Messaging may fail if unsupported by browser
+  }
+}
 
 export function getAuthErrorMessage(
   err: unknown,

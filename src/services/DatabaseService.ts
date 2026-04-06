@@ -48,6 +48,10 @@ export interface UserProfile {
   // Custom Avatar
   avatarSeed?: string;
   avatarStyle?: "adventurer" | "micah" | "bottts" | "notionists";
+  
+  // Push Notifications
+  fcmToken?: string;
+  reminderFrequency?: "none" | "daily" | "morning_evening" | "intensive";
 
   onboardingComplete?: boolean;
   totalXP?: number;

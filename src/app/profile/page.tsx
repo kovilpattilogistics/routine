@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DatabaseService, UserProfile } from "@/services/DatabaseService";
 import { RoutineGeneratorService } from "@/services/RoutineGeneratorService";
+import { NotificationService } from "@/services/NotificationService";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./profile.module.css";
@@ -55,6 +56,13 @@ const FITNESS_LABELS: Record<string, string> = {
   general_health: "General Health",
 };
 
+const REMINDER_LABELS: Record<string, string> = {
+  none: "No Reminders",
+  daily: "Once a day (Gentle Nudge)",
+  morning_evening: "Morning & Evening (Start/End)",
+  intensive: "Every 4 Hours (Intensive)",
+};
+
 export const ALL_BADGES = [
   { id: "7_day_streak", icon: "🔥", title: "7-Day Streak", desc: "Completed a habit 7 days in a row" },
   { id: "30_day_legend", icon: "🏆", title: "30-Day Legend", desc: "Completed a habit 30 days in a row" },
@@ -93,6 +101,9 @@ export default function ProfilePage() {
   const [editFitnessGoal, setEditFitnessGoal] = useState("");
   const [editActivityLevel, setEditActivityLevel] = useState("");
   const [editDietaryPref, setEditDietaryPref] = useState("");
+  const [editReminderFrequency, setEditReminderFrequency] = useState("");
+
+  const [enablingPush, setEnablingPush] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -124,6 +135,7 @@ export default function ProfilePage() {
     setEditFitnessGoal(p.fitnessGoal ?? "");
     setEditActivityLevel(p.activityLevel ?? "");
     setEditDietaryPref(p.dietaryPreference ?? "");
+    setEditReminderFrequency(p.reminderFrequency ?? "none");
   };
 
   if (loading || profileLoading) {
@@ -152,6 +164,7 @@ export default function ProfilePage() {
         fitnessGoal: editFitnessGoal || undefined,
         activityLevel: editActivityLevel || undefined,
         dietaryPreference: editDietaryPref || undefined,
+        reminderFrequency: (editReminderFrequency as any) || undefined,
       };
 
       await DatabaseService.getInstance().updateUserProfile(user.uid, updates);
@@ -182,6 +195,20 @@ export default function ProfilePage() {
       // ignore
     } finally {
       setRerollingAvatar(false);
+    }
+  };
+
+  const handleEnablePush = async () => {
+    if (!user) return;
+    setEnablingPush(true);
+    try {
+      const token = await NotificationService.enablePushNotifications(user.uid);
+      if (token && profile) {
+         setProfile({ ...profile, fcmToken: token, reminderFrequency: editReminderFrequency as any || "daily" });
+         setEditReminderFrequency("daily");
+      }
+    } finally {
+      setEnablingPush(false);
     }
   };
 
@@ -438,6 +465,45 @@ export default function ProfilePage() {
                </div>
             </div>
           )}
+        </section>
+
+        <div className={styles.divider} />
+
+        {/* Push Reminders Area */}
+        <section className={styles.section} style={{ marginBottom: "24px" }}>
+          <div className={styles.sectionHeader}>
+            <p className={styles.sectionLabel}>App Settings & Reminders</p>
+          </div>
+          
+          <div className={styles.editGridFull}>
+             {isEditing ? (
+                <div className={styles.editField}>
+                   <label className={styles.editLabel}>Nudge Frequency</label>
+                   <select className={styles.editSelect} value={editReminderFrequency} onChange={e => setEditReminderFrequency(e.target.value)}>
+                      {Object.entries(REMINDER_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                   </select>
+                   <p className={styles.unit} style={{marginTop: 4}}>Set how often our smart coach checks in with you.</p>
+                </div>
+             ) : (
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Nudge Frequency</span>
+                    <span className={styles.infoValue}>{REMINDER_LABELS[profile.reminderFrequency || "none"] ?? "No Reminders"}</span>
+                  </div>
+                </div>
+             )}
+
+             {(!profile.fcmToken || profile.fcmToken === "") && !isEditing && (
+                <button 
+                  className={styles.genBtn} 
+                  style={{marginTop: 12, background: "rgba(99, 102, 241, 0.1)", color: "#6366f1", border: "1px solid rgba(99, 102, 241, 0.2)"}}
+                  onClick={handleEnablePush}
+                  disabled={enablingPush}
+                >
+                   {enablingPush ? "Enabling..." : "🔔 Enable Mobile Push Notifications"}
+                </button>
+             )}
+          </div>
         </section>
 
         <div className={styles.divider} />
