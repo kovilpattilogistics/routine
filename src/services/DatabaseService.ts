@@ -12,6 +12,7 @@ import {
   Timestamp,
   writeBatch,
   increment,
+  deleteField,
 } from "firebase/firestore";
 
 // ── TYPES ────────────────────────────────────────────────────
@@ -220,31 +221,9 @@ export class DatabaseService {
     habitId: string,
     dateStr: string,
     isCompleted: boolean,
-    intensity = 1
+    intensity = 1,
+    oldDates: string[] = []
   ) {
-    const batch = writeBatch(db);
-    const entryRef = doc(
-      db,
-      "users",
-      userId,
-      "groups",
-      groupId,
-      "habits",
-      habitId,
-      "entries",
-      dateStr
-    );
-
-    if (isCompleted) {
-      batch.set(
-        entryRef,
-        { completed: true, intensity, completedAt: Timestamp.now() },
-        { merge: true }
-      );
-    } else {
-      batch.delete(entryRef);
-    }
-
     const habitRef = doc(
       db,
       "users",
@@ -254,12 +233,20 @@ export class DatabaseService {
       "habits",
       habitId
     );
-    batch.update(habitRef, {
-      [`completedDays.${dateStr}`]: isCompleted ? intensity : null,
+    
+    const updates: Record<string, any> = {
+      [`completedDays.${dateStr}`]: isCompleted ? intensity : deleteField(),
       totalCompletions: increment(isCompleted ? 1 : -1),
-    });
+    };
+    
+    // Prune old dates > 90 days to keep doc size small
+    for (const oldDate of oldDates) {
+      if (oldDate !== dateStr) {
+        updates[`completedDays.${oldDate}`] = deleteField();
+      }
+    }
 
-    await batch.commit();
+    await updateDoc(habitRef, updates);
   }
 
   async updateHabit(
@@ -278,6 +265,19 @@ export class DatabaseService {
       habitId
     );
     await updateDoc(habitRef, data as Record<string, unknown>);
+  }
+
+  async batchUpdateHabits(
+    userId: string,
+    groupId: string,
+    updates: { id: string; data: Partial<Habit> }[]
+  ) {
+    const batch = writeBatch(db);
+    for (const update of updates) {
+      const habitRef = doc(db, "users", userId, "groups", groupId, "habits", update.id);
+      batch.update(habitRef, update.data as Record<string, unknown>);
+    }
+    await batch.commit();
   }
 
   async updateHabitEntryDetails(

@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
+import { getFirestore, Firestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,7 +16,22 @@ const app: FirebaseApp =
   getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+
+let firestoreDb: Firestore;
+if (typeof window !== "undefined") {
+  try {
+    firestoreDb = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+  } catch (e) {
+    // In dev mode with HMR, Firestore might already be initialized
+    firestoreDb = getFirestore(app);
+  }
+} else {
+  firestoreDb = getFirestore(app);
+}
+
+export const db: Firestore = firestoreDb;
 
 export function getAuthErrorMessage(
   err: unknown,

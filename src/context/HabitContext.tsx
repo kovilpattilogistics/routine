@@ -63,12 +63,16 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   const activeGroupIdRef = useRef<string | null>(null);
   activeGroupIdRef.current = activeGroupId;
 
+  // Track which groups we've already fetched habits for
+  const seenGroupIdsRef = useRef<Set<string>>(new Set());
+
   // ── Real-time group listener ──────────────────────────────
   useEffect(() => {
     if (!user) {
       setGroups([]);
       setHabits([]);
       setLoading(false);
+      seenGroupIdsRef.current.clear();
       return;
     }
 
@@ -91,15 +95,26 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setActiveGroupId(freshGroups[0].id);
       }
 
-      // Fetch all habits for all groups in parallel (single waterfall step)
+      // Fetch habits only for groups we haven't seen yet in this session
       if (freshGroups.length > 0) {
         const db_svc = DatabaseService.getInstance();
-        const results = await Promise.all(
-          freshGroups.map((g) => db_svc.getHabits(user.uid, g.id))
-        );
-        setHabits(results.flat());
+        const newGroups = freshGroups.filter((g) => !seenGroupIdsRef.current.has(g.id));
+        
+        if (newGroups.length > 0) {
+          const results = await Promise.all(
+            newGroups.map((g) => db_svc.getHabits(user.uid, g.id))
+          );
+          setHabits((prev) => {
+            // Merge carefully to avoid duplicates if hot-reloaded
+            const existingIds = new Set(prev.map(h => h.id));
+            const newHabits = results.flat().filter(h => !existingIds.has(h.id));
+            return [...prev, ...newHabits];
+          });
+          newGroups.forEach((g) => seenGroupIdsRef.current.add(g.id));
+        }
       } else {
         setHabits([]);
+        seenGroupIdsRef.current.clear();
       }
 
       setLoading(false);
@@ -150,13 +165,27 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       );
 
       try {
+        const oldDates: string[] = [];
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        const cutoffStr = ninetyDaysAgo.toISOString().split("T")[0];
+        
+        if (habit.completedDays) {
+          for (const key of Object.keys(habit.completedDays)) {
+            if (key < cutoffStr) {
+              oldDates.push(key);
+            }
+          }
+        }
+
         await DatabaseService.getInstance().toggleHabitEntry(
           user.uid,
           groupId,
           habitId,
           dateStr,
           isCompleted,
-          intensity
+          intensity,
+          oldDates
         );
       } catch (err) {
         console.error("Toggle failed — reverting", err);
@@ -242,10 +271,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         return [...others, ...reordered];
       });
       const db_svc = DatabaseService.getInstance();
-      await Promise.all(
-        newOrderedHabits.map((h, i) =>
-          db_svc.updateHabit(user.uid, groupId, h.id, { sortOrder: i })
-        )
+      await db_svc.batchUpdateHabits(
+        user.uid,
+        groupId,
+        newOrderedHabits.map((h, i) => ({ id: h.id, data: { sortOrder: i } }))
       );
     },
     [user]

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useHabits } from "@/context/HabitContext";
@@ -48,6 +48,10 @@ export default function PlannerPage() {
   const [baseDate, setBaseDate] = useState(new Date());
   const [isPastDataModalOpen, setIsPastDataModalOpen] = useState(false);
 
+  // Accumulate XP changes
+  const pendingXPAward = useRef(0);
+  const xpDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+
   // Auth guard
   useEffect(() => {
     if (!authLoading && !user) router.replace("/login");
@@ -81,8 +85,16 @@ export default function PlannerPage() {
         if (intensity === 2) xpAward += XP_REWARDS.EXCEEDED_GOAL;
         const newTotalXP = (profile.totalXP || 0) + xpAward;
         setProfile((prev) => (prev ? { ...prev, totalXP: newTotalXP } : null));
-        // Fire-and-forget DB update
-        DatabaseService.getInstance().addXP(user.uid, xpAward).catch(console.error);
+        
+        // Debounce the network write to save on Firebase write operations
+        pendingXPAward.current += xpAward;
+        if (xpDebounceTimer.current) clearTimeout(xpDebounceTimer.current);
+        xpDebounceTimer.current = setTimeout(() => {
+          if (pendingXPAward.current !== 0) {
+            DatabaseService.getInstance().addXP(user.uid, pendingXPAward.current).catch(console.error);
+            pendingXPAward.current = 0;
+          }
+        }, 3000);
       }
     },
     [habits, todayStr, toggleHabit, profile, user]
