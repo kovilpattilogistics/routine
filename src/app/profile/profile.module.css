@@ -76,13 +76,43 @@
 }
 
 .avatarWrap {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid #e0e7ff;
   background: #eef2ff;
   flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.avatarCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.rerollBtn {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.15);
+  border: none;
+  padding: 5px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.rerollBtn:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+.rerollBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .avatar {
@@ -133,13 +163,13 @@
 .infoGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
 .infoItem {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .infoLabel {
@@ -172,15 +202,22 @@
 /* Edit grid */
 .editGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.editGridFull {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .editField {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 
 .editLabel {
@@ -217,10 +254,24 @@
 .editInput::-webkit-inner-spin-button,
 .editInput::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-.editInput:focus {
+.editInput:focus, .editSelect:focus {
   border-color: #6366f1;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.editSelect {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #111;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 /* Edit actions */
@@ -253,18 +304,23 @@
 .cancelBtn:hover { background: #f9fafb; color: #374151; }
 
 .saveBtn {
+  transition: all 0.2s;
+}
+
+/* Updated save buttons for light theme */
+.saveBtn {
   font-size: 13px;
   font-weight: 600;
   color: #fff;
   padding: 8px 18px;
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #111;
+  border: 1px solid #111;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.saveBtn:hover:not(:disabled) { border-color: #fff; background: rgba(255, 255, 255, 0.15); }
+.saveBtn:hover:not(:disabled) { background: #333; }
 .saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Sign out */

@@ -38,6 +38,17 @@ export interface UserProfile {
   wakeTime?: string;
   focusArea?: string;
   firstTask?: string;
+  
+  // New Lifestyle & Fitness Metrics
+  sleepTarget?: number;
+  activityLevel?: string;
+  fitnessGoal?: string;
+  dietaryPreference?: string;
+  
+  // Custom Avatar
+  avatarSeed?: string;
+  avatarStyle?: "adventurer" | "micah" | "bottts" | "notionists";
+
   onboardingComplete?: boolean;
   totalXP?: number;
   currentLevel?: number;
