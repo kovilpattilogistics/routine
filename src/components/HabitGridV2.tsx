@@ -185,14 +185,29 @@ const HabitRow = memo(function HabitRow({
   const isBroken = React.useMemo(() => {
     if (!habit.currentStreak || habit.currentStreak === 0) return false;
     let missedCount = 0;
+    
+    // Find the date the habit was created to avoid penalizing days before it existed
+    let createdDateStr = todayStr;
+    if (habit.createdAt) {
+      try {
+        const createdDate = typeof (habit.createdAt as any).toDate === "function" 
+          ? (habit.createdAt as any).toDate() 
+          : new Date(habit.createdAt as any);
+        createdDateStr = createdDate.toISOString().split("T")[0];
+      } catch (e) {
+        // Fallback
+      }
+    }
+
     for (let i = 1; i <= 3; i++) {
       const d = new Date(todayStr + "T00:00:00");
       d.setDate(d.getDate() - i);
       const dStr = d.toISOString().split("T")[0];
+      if (dStr < createdDateStr) continue; // Don't count days before creation as missed
       if (!habit.completedDays?.[dStr]) missedCount++;
     }
     return missedCount >= 3;
-  }, [habit.completedDays, habit.currentStreak, todayStr]);
+  }, [habit.completedDays, habit.currentStreak, todayStr, habit.createdAt]);
 
   const handleCellClick = useCallback(
     (dateStr: string, currentIntensity: number) => {
@@ -257,6 +272,19 @@ const HabitRow = memo(function HabitRow({
     onTouchEnd: () => setIsDragging(false),
   };
 
+  // Pre-parse the creation date for UI evaluation
+  let createdDateStr = "1970-01-01";
+  if (habit.createdAt) {
+    try {
+      const createdDate = typeof (habit.createdAt as any).toDate === "function" 
+        ? (habit.createdAt as any).toDate() 
+        : new Date(habit.createdAt as any);
+      createdDateStr = createdDate.toISOString().split("T")[0];
+    } catch (e) {
+      // fallback
+    }
+  }
+
   return (
     <div
       ref={rowRef}
@@ -319,11 +347,12 @@ const HabitRow = memo(function HabitRow({
           const isToday = day === todayStr;
           const isDone = intensity === 1;
           const isExceeded = intensity === 2;
-          const isMissed = !intensity && day < todayStr;
+          // Only mark missed if it's before today, BUT also ON or AFTER creation day
+          const isMissed = !intensity && day < todayStr && day >= createdDateStr;
 
-          // Only compute streak for completed cells — avoids O(n×31×365)
+          // Compute continuous streak for ALL completed cells (runs fast enough in UI)
           const cellStreak =
-            (isDone || isExceeded) && isToday
+            (isDone || isExceeded)
               ? computeStreakAtDate(habit.completedDays || {}, day)
               : 0;
 

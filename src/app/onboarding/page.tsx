@@ -30,7 +30,7 @@ const FOCUS_AREAS = [
   { value: "wellness", emoji: "🌿", label: "Me-time & Wellness" },
 ] as const;
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 5;
 
 // ── Component ──────────────────────────────────────────────────────────
 export default function OnboardingPage() {
@@ -51,8 +51,6 @@ export default function OnboardingPage() {
   const [physicalError, setPhysicalError] = useState("");
   const [wakeTime, setWakeTime] = useState("07:00");
   const [focusArea, setFocusArea] = useState<string>("");
-  const [firstTask, setFirstTask] = useState("");
-  const [taskCategory, setTaskCategory] = useState("");
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -71,8 +69,11 @@ export default function OnboardingPage() {
     }, 220);
   };
 
-  const handleFinish = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFinish = async (
+    e?: React.FormEvent | React.MouseEvent,
+    overrideFocusArea?: string
+  ) => {
+    e?.preventDefault();
     if (submitting) return;
     setSubmitting(true);
 
@@ -89,42 +90,12 @@ export default function OnboardingPage() {
 
     try {
       // Try to update profile; fall back to create if it doesn't exist
+      const area = overrideFocusArea || focusArea;
+      const finalUpdate = { ...profileUpdate, focusArea: area };
       try {
-        await DatabaseService.getInstance().updateUserProfile(user.uid, profileUpdate);
+        await DatabaseService.getInstance().updateUserProfile(user.uid, finalUpdate);
       } catch {
-        await DatabaseService.getInstance().createUserProfile(user.uid, profileUpdate);
-      }
-
-      // Add first task as a habit if provided
-      if (firstTask.trim()) {
-        const db = DatabaseService.getInstance();
-        const area = FOCUS_AREAS.find(f => f.value === (taskCategory || focusArea));
-        const groupName = area?.label || "My Routine";
-        const emoji = area?.emoji || "✨";
-        const themeColors: Group['themeColor'][] = ["red", "blue", "green", "purple", "orange", "pink", "teal", "gold"];
-        const themeColor = themeColors[Math.floor(Math.random() * themeColors.length)];
-
-        const gId = `${Date.now()}`;
-        await db.addGroup(user.uid, {
-          id: gId,
-          name: groupName,
-          emoji,
-          themeColor,
-          sortOrder: 0,
-          isDeleted: false,
-          createdAt: new Date() as any
-        } as any);
-
-        const habit = { 
-          id: `h-${Date.now()}`, 
-          name: firstTask.trim(), 
-          groupId: gId,
-          emoji: emoji,
-          frequency: 'daily' as const,
-          sortOrder: 0,
-          completedDays: {} 
-        };
-        await db.addHabit(user.uid, gId, habit as any);
+        await DatabaseService.getInstance().createUserProfile(user.uid, finalUpdate);
       }
     } catch (e) {
       console.error("Onboarding save error:", e);
@@ -266,40 +237,22 @@ export default function OnboardingPage() {
               {FOCUS_AREAS.map((f) => (
                 <button key={f.value} type="button"
                   className={`${styles.tile} ${focusArea === f.value ? styles.tileActive : ""}`}
-                  onClick={() => { setFocusArea(f.value); advance(6); }}
+                  onClick={(e) => { 
+                    setFocusArea(f.value); 
+                    handleFinish(e, f.value); 
+                  }}
+                  disabled={submitting}
                 >
                   <span className={styles.tileEmoji}>{f.emoji}</span>
                   <span className={styles.tileLabel}>{f.label}</span>
                 </button>
               ))}
             </div>
-            <button className={styles.backBtn} onClick={() => advance(4)}>← Back</button>
+            
+            {submitting && <div className={styles.spinner} style={{ margin: "20px auto" }} />}
+            
+            <button className={styles.backBtn} onClick={() => advance(4)} disabled={submitting}>← Back</button>
           </div>
-        )}
-
-        {/* ── SCREEN 6: First task ── */}
-        {step === 6 && (
-          <form className={styles.screenInner} onSubmit={handleFinish}>
-            <h1 className={styles.question}>Set your first task.</h1>
-            <p className={styles.hint}>Leave here with something created — your activation moment.</p>
-            <div className={styles.taskInputWrap}>
-              <input className={styles.taskInput} type="text" placeholder="e.g. Drink 8 glasses of water" value={firstTask} onChange={(e) => setFirstTask(e.target.value)} autoFocus />
-              <select className={styles.taskCategory} value={taskCategory} onChange={(e) => setTaskCategory(e.target.value)}>
-                <option value="">Category (optional)</option>
-                {FOCUS_AREAS.map((f) => <option key={f.value} value={f.value}>{f.emoji} {f.label}</option>)}
-              </select>
-            </div>
-            <div className={styles.navRow}>
-              <button type="button" className={styles.backBtn} onClick={() => advance(5)}>← Back</button>
-              <button type="submit" className={styles.doneBtn} disabled={submitting}>
-                {submitting ? <span className={styles.spinner} /> : null}
-                {submitting ? "Preparing your space…" : "Let's go 🚀"}
-              </button>
-            </div>
-            {!firstTask.trim() && (
-              <button type="submit" className={styles.skipLink} disabled={submitting}>Skip for now</button>
-            )}
-          </form>
         )}
       </div>
     </div>

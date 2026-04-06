@@ -114,6 +114,7 @@ export default function PlannerPage() {
         currentStreak: 0,
         bestStreak: 0,
         totalCompletions: 0,
+        createdAt: { toDate: () => new Date() } as any,
       };
       await DatabaseService.getInstance().addHabit(user.uid, addHabitForGroupId, newHabit);
       await refreshHabits();
@@ -189,53 +190,67 @@ export default function PlannerPage() {
           />
         )}
 
-        <GroupListAccordion
-          groups={groups}
-          activeGroupId={activeGroupId}
-          onSelect={(id) => {
-            // Close add-habit form when switching groups
-            setAddHabitForGroupId(null);
-            setActiveGroupId(id);
-          }}
-          onNewGroup={() => setIsNewGroupModalOpen(true)}
-          habits={habits}
-          renderGrid={(groupId) => {
-            const groupHabits = habits.filter((h) => h.groupId === groupId);
-            const grp = groups.find((g) => g.id === groupId);
-            const isAddingHere = addHabitForGroupId === groupId;
+        {groups.length === 0 && !habitsLoading ? (
+          <div className={styles.emptyCanvasNudge}>
+            <div className={styles.emptyIcon}>✨</div>
+            <h2>You have a blank canvas.</h2>
+            <p>Let's create your first routine and start building momentum.</p>
+            <button
+              onClick={() => setIsNewGroupModalOpen(true)}
+              className={styles.emptyNudgeBtn}
+            >
+              Create a Group
+            </button>
+          </div>
+        ) : (
+          <GroupListAccordion
+            groups={groups}
+            activeGroupId={activeGroupId}
+            onSelect={(id) => {
+              // Close add-habit form when switching groups
+              setAddHabitForGroupId(null);
+              setActiveGroupId(id);
+            }}
+            onNewGroup={() => setIsNewGroupModalOpen(true)}
+            habits={habits}
+            renderGrid={(groupId) => {
+              const groupHabits = habits.filter((h) => h.groupId === groupId);
+              const grp = groups.find((g) => g.id === groupId);
+              const isAddingHere = addHabitForGroupId === groupId;
 
-            return (
-              <div className={styles.accordionGridWrap}>
-                <HabitGridV2
-                  habits={groupHabits}
-                  onToggle={handleToggle}
-                  onHabitClick={setSelectedHabit}
-                  onLongPressCell={(habitId, dateStr) => {
-                    const h = habits.find((h) => h.id === habitId);
-                    if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
-                  }}
-                  baseDate={baseDate}
-                  themeColor={grp?.themeColor}
-                />
-
-                {!isAddingHere ? (
-                  <button
-                    className={styles.addHabitBtn}
-                    onClick={() => setAddHabitForGroupId(groupId)}
-                  >
-                    <span>＋</span> Add Habit to {grp?.name}
-                  </button>
-                ) : (
-                  <AddHabitInline
-                    onSave={handleAddHabit}
-                    onCancel={() => setAddHabitForGroupId(null)}
-                    groupName={grp?.name}
+              return (
+                <div className={styles.accordionGridWrap}>
+                  <HabitGridV2
+                    habits={groupHabits}
+                    onToggle={handleToggle}
+                    onHabitClick={setSelectedHabit}
+                    onLongPressCell={(habitId, dateStr) => {
+                      const h = habits.find((h) => h.id === habitId);
+                      if (h) setCellModalData({ habitId, dateStr, habitName: h.name });
+                    }}
+                    baseDate={baseDate}
+                    themeColor={grp?.themeColor}
                   />
-                )}
-              </div>
-            );
-          }}
-        />
+
+                  {!isAddingHere ? (
+                    <button
+                      className={styles.addHabitBtn}
+                      onClick={() => setAddHabitForGroupId(groupId)}
+                    >
+                      <span>＋</span> Add Habit to {grp?.name}
+                    </button>
+                  ) : (
+                    <AddHabitInline
+                      onSave={handleAddHabit}
+                      onCancel={() => setAddHabitForGroupId(null)}
+                      groupName={grp?.name}
+                    />
+                  )}
+                </div>
+              );
+            }}
+          />
+        )}
       </main>
 
       {/* Modals */}
