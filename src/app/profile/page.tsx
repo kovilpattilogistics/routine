@@ -6,6 +6,7 @@ import { DatabaseService, UserProfile } from "@/services/DatabaseService";
 import { RoutineGeneratorService } from "@/services/RoutineGeneratorService";
 import { NotificationService } from "@/services/NotificationService";
 import { useRouter } from "next/navigation";
+import { deleteField } from "firebase/firestore";
 import Link from "next/link";
 import styles from "./profile.module.css";
 import { cn } from "@/lib/utils";
@@ -104,6 +105,8 @@ export default function ProfilePage() {
   const [editReminderFrequency, setEditReminderFrequency] = useState("");
 
   const [enablingPush, setEnablingPush] = useState(false);
+  const [showPushFreq, setShowPushFreq] = useState(false);
+  const [localFreq, setLocalFreq] = useState("daily");
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -153,18 +156,17 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       const updates: Partial<UserProfile> = {
-        age: editAge ? Number(editAge) : undefined,
-        height: editHeight ? Number(editHeight) : undefined,
-        weight: editWeight ? Number(editWeight) : undefined,
-        role: editRole || undefined,
-        struggle: editStruggle || undefined,
-        focusArea: editFocusArea || undefined,
-        wakeTime: editWakeTime || undefined,
-        sleepTarget: editSleepTarget ? Number(editSleepTarget) : undefined,
-        fitnessGoal: editFitnessGoal || undefined,
-        activityLevel: editActivityLevel || undefined,
-        dietaryPreference: editDietaryPref || undefined,
-        reminderFrequency: (editReminderFrequency as "none" | "daily" | "morning_evening" | "intensive") || undefined,
+        age: editAge ? Number(editAge) : deleteField() as any,
+        height: editHeight ? Number(editHeight) : deleteField() as any,
+        weight: editWeight ? Number(editWeight) : deleteField() as any,
+        role: editRole || deleteField() as any,
+        struggle: editStruggle || deleteField() as any,
+        focusArea: editFocusArea || deleteField() as any,
+        wakeTime: editWakeTime || deleteField() as any,
+        sleepTarget: editSleepTarget ? Number(editSleepTarget) : deleteField() as any,
+        fitnessGoal: editFitnessGoal || deleteField() as any,
+        activityLevel: editActivityLevel || deleteField() as any,
+        dietaryPreference: editDietaryPref || deleteField() as any,
       };
 
       await DatabaseService.getInstance().updateUserProfile(user.uid, updates);
@@ -198,17 +200,25 @@ export default function ProfilePage() {
     }
   };
 
-  const handleEnablePush = async () => {
+  const handleEnablePush = async (freq: string) => {
     if (!user) return;
     setEnablingPush(true);
     try {
+      // Save their preference first, so even if the browser prompt drops, we recorded their choice
+      await DatabaseService.getInstance().updateUserProfile(user.uid, { reminderFrequency: freq as any });
+      setProfile(p => p ? { ...p, reminderFrequency: freq as any } : p);
+
       const token = await NotificationService.enablePushNotifications(user.uid);
       if (token && profile) {
-         setProfile({ ...profile, fcmToken: token, reminderFrequency: (editReminderFrequency as "none" | "daily" | "morning_evening" | "intensive") || "daily" });
-         setEditReminderFrequency("daily");
+         setProfile(p => p ? { ...p, fcmToken: token } : p);
+      } else {
+         setSaveError("Push permission was denied or blocked by browser.");
       }
+    } catch {
+      setSaveError("Failed to enable push notifications.");
     } finally {
       setEnablingPush(false);
+      setShowPushFreq(false);
     }
   };
 
@@ -476,32 +486,58 @@ export default function ProfilePage() {
           </div>
           
           <div className={styles.editGridFull}>
-             {isEditing ? (
+             {profile.fcmToken ? (
                 <div className={styles.editField}>
                    <label className={styles.editLabel}>Nudge Frequency</label>
-                   <select className={styles.editSelect} value={editReminderFrequency} onChange={e => setEditReminderFrequency(e.target.value)}>
+                   <select 
+                      className={styles.editSelect} 
+                      value={profile.reminderFrequency || "none"} 
+                      onChange={async (e) => {
+                         const val = e.target.value as any;
+                         setProfile({ ...profile, reminderFrequency: val });
+                         if (user) {
+                           await DatabaseService.getInstance().updateUserProfile(user.uid, { reminderFrequency: val });
+                         }
+                      }}
+                   >
                       {Object.entries(REMINDER_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                    </select>
                    <p className={styles.unit} style={{marginTop: 4}}>Set how often our smart coach checks in with you.</p>
                 </div>
+             ) : showPushFreq ? (
+                <div className={styles.editField}>
+                   <label className={styles.editLabel}>How often should we nudge you?</label>
+                   <select 
+                      className={styles.editSelect} 
+                      value={localFreq} 
+                      onChange={(e) => setLocalFreq(e.target.value)}
+                   >
+                      {Object.entries(REMINDER_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                   </select>
+                   <button 
+                      className={styles.genBtn} 
+                      style={{marginTop: 12, background: "#6366f1", color: "#fff", border: "none"}}
+                      onClick={() => handleEnablePush(localFreq)}
+                      disabled={enablingPush}
+                    >
+                       {enablingPush ? "Enabling..." : "Confirm & Allow Notifications"}
+                    </button>
+                    <p className={styles.unit} style={{marginTop: 8}}>Your browser will ask for native permission next.</p>
+                </div>
              ) : (
                 <div className={styles.infoGrid}>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Nudge Frequency</span>
-                    <span className={styles.infoValue}>{REMINDER_LABELS[profile.reminderFrequency || "none"] ?? "No Reminders"}</span>
+                  <div className={styles.infoItem} style={{ border: 'none', background: 'transparent', padding: 0 }}>
+                    <button 
+                      className={styles.genBtn} 
+                      style={{background: "rgba(99, 102, 241, 0.1)", color: "#6366f1", border: "1px solid rgba(99, 102, 241, 0.2)"}}
+                      onClick={() => setShowPushFreq(true)}
+                      disabled={enablingPush}
+                    >
+                       🔔 Enable Mobile Push Notifications
+                    </button>
+                    <p className={styles.unit} style={{marginTop: 8}}>Enable this step to configure your nudges.</p>
                   </div>
                 </div>
-             )}
-
-             {(!profile.fcmToken || profile.fcmToken === "") && !isEditing && (
-                <button 
-                  className={styles.genBtn} 
-                  style={{marginTop: 12, background: "rgba(99, 102, 241, 0.1)", color: "#6366f1", border: "1px solid rgba(99, 102, 241, 0.2)"}}
-                  onClick={handleEnablePush}
-                  disabled={enablingPush}
-                >
-                   {enablingPush ? "Enabling..." : "🔔 Enable Mobile Push Notifications"}
-                </button>
              )}
           </div>
         </section>
