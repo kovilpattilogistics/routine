@@ -164,7 +164,7 @@ export default function ProfilePage() {
         fitnessGoal: editFitnessGoal || undefined,
         activityLevel: editActivityLevel || undefined,
         dietaryPreference: editDietaryPref || undefined,
-        reminderFrequency: (editReminderFrequency as any) || undefined,
+        reminderFrequency: (editReminderFrequency as "none" | "daily" | "morning_evening" | "intensive") || undefined,
       };
 
       await DatabaseService.getInstance().updateUserProfile(user.uid, updates);
@@ -188,9 +188,9 @@ export default function ProfilePage() {
     try {
       await DatabaseService.getInstance().updateUserProfile(user.uid, {
         avatarSeed: newSeed,
-        avatarStyle: newStyle as any
+        avatarStyle: newStyle as "adventurer" | "micah" | "bottts" | "notionists"
       });
-      setProfile(p => p ? { ...p, avatarSeed: newSeed, avatarStyle: newStyle as any } : p);
+      setProfile(p => p ? { ...p, avatarSeed: newSeed, avatarStyle: newStyle as "adventurer" | "micah" | "bottts" | "notionists" } : p);
     } catch {
       // ignore
     } finally {
@@ -204,7 +204,7 @@ export default function ProfilePage() {
     try {
       const token = await NotificationService.enablePushNotifications(user.uid);
       if (token && profile) {
-         setProfile({ ...profile, fcmToken: token, reminderFrequency: editReminderFrequency as any || "daily" });
+         setProfile({ ...profile, fcmToken: token, reminderFrequency: (editReminderFrequency as "none" | "daily" | "morning_evening" | "intensive") || "daily" });
          setEditReminderFrequency("daily");
       }
     } finally {
@@ -230,7 +230,7 @@ export default function ProfilePage() {
       await RoutineGeneratorService.generateCustomRoutine(user.uid, profile);
       
       router.push("/planner");
-    } catch (e) {
+    } catch (e: unknown) {
       setSaveError("Failed to generate routine. Try again.");
       setGenerating(false);
     }

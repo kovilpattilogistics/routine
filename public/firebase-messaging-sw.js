@@ -8,12 +8,13 @@ importScripts("https://www.gstatic.com/firebasejs/10.9.0/firebase-messaging-comp
 // Service workers cannot securely read Next.js process.env variables natively without Webpack injection plugins, 
 // so you must paste your standard public config here.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBLmz9lYc4y2xuiSXEdSK_Ra57eRxT8dnY",
+  authDomain: "routine-tracker-4205f.firebaseapp.com",
+  projectId: "routine-tracker-4205f",
+  storageBucket: "routine-tracker-4205f.firebasestorage.app",
+  messagingSenderId: "930249534656",
+  appId: "1:930249534656:web:70b51221c44db0edcb1125",
+  measurementId: "G-XZ4LYDM5QW"
 };
 
 try {
