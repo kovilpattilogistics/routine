@@ -48,15 +48,21 @@ function getDayLabel(dateStr: string, compact: boolean): string {
 
 // Pre-compute streak for a given date in O(n) — runs once per habit per render
 function computeStreakAtDate(
-  completedDays: Record<string, number | null | undefined>,
+  completedDays: Record<string, any>,
   dateStr: string
 ): number {
   let streak = 0;
-  const current = new Date(dateStr + "T00:00:00");
+  const parts = dateStr.split("-").map(Number);
+  const current = new Date(parts[0], parts[1] - 1, parts[2]);
+
   for (let i = 0; i < 365; i++) {
-    const s = current.toISOString().split("T")[0];
+    const year = current.getFullYear();
+    const month = String(current.getMonth() + 1).padStart(2, "0");
+    const day = String(current.getDate()).padStart(2, "0");
+    const s = `${year}-${month}-${day}`;
+
     const intensity = completedDays?.[s];
-    if (intensity === 1 || intensity === 2) {
+    if (intensity === 1 || intensity === 2 || intensity === true) {
       streak++;
       current.setDate(current.getDate() - 1);
     } else {
@@ -342,13 +348,14 @@ const HabitRow = memo(function HabitRow({
       {/* Right: scrollable cell strip */}
       <div className={styles.cellsRow}>
         {days.map((day) => {
-          const intensity = habit.completedDays?.[day] ?? 0;
+          const rawIntensity = habit.completedDays?.[day];
+          const intensity = typeof rawIntensity === "number" ? rawIntensity : 0;
           const isFuture = day > todayStr;
           const isToday = day === todayStr;
-          const isDone = intensity === 1;
-          const isExceeded = intensity === 2;
+          const isDone = rawIntensity === 1 || (rawIntensity as any) === true;
+          const isExceeded = rawIntensity === 2;
           // Only mark missed if it's before today, BUT also ON or AFTER creation day
-          const isMissed = !intensity && day < todayStr && day >= createdDateStr;
+          const isMissed = !isDone && !isExceeded && day < todayStr && day >= createdDateStr;
 
           // Compute continuous streak for ALL completed cells (runs fast enough in UI)
           const cellStreak =
@@ -376,7 +383,7 @@ const HabitRow = memo(function HabitRow({
                 onLongPressCell(habit.id, day);
               }}
             >
-              {cellStreak > 1 && (
+              {cellStreak > 0 && (
                 <span className={styles.cellStreak}>{cellStreak}</span>
               )}
               {isMissed && <span className={styles.missedCross}>✕</span>}

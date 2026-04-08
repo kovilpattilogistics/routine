@@ -30,6 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authService.onAuthStateChange((usr) => {
           setUser(usr as User);
           setLoading(false);
+          
+          if (usr) {
+             // Let the server know we are authenticated (for Middleware redirects)
+             document.cookie = "auth_session=true; path=/; max-age=31536000; SameSite=Lax";
+          } else {
+             // Delete cookie if signed out
+             document.cookie = "auth_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
         });
       } catch (e: any) {
         console.error("Firebase auth initialization error:", e);
@@ -43,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       await AuthService.getInstance().signOut();
+      document.cookie = "auth_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch (e) {
       console.error(e);
     }

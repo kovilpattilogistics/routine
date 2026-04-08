@@ -11,12 +11,11 @@ export default function LandingPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Fallback: If middleware fails or user magically logs in on this page without navigation
     if (!loading && user) {
       router.replace("/planner");
     }
   }, [user, loading, router]);
-
-  if (loading) return null;
 
   return (
     <main className={styles.hero}>
