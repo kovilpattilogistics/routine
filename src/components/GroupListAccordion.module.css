@@ -248,6 +248,35 @@
 .theme_teal   { color: #14b8a6; background-color: #FAFFFD; }
 .theme_gold   { color: #d97706; background-color: #FFFDF5; }
 
+/* ── Bottom Danger Button ────────────────────────────────── */
+.dangerBottomContainer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 12px 16px 12px;
+}
+
+.dangerBottomBtn {
+  opacity: 1;
+  border: 1px dashed #E03E3E;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: #E03E3E;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dangerBottomBtn.deleteArmed {
+  background: #FFE2E5;
+  border-style: solid;
+}
+
 /* ── Reduce motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .gridExpansion, .chevron, .progressStripe,

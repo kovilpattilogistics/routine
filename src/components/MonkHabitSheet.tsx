@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./MonkHabitSheet.module.css";
 import { Habit } from "@/services/DatabaseService";
+import { useHabits } from "@/context/HabitContext";
 
 interface MonkHabitSheetProps {
   habit: Habit;
@@ -11,8 +12,32 @@ interface MonkHabitSheetProps {
 }
 
 export function MonkHabitSheet({ habit, onClose }: MonkHabitSheetProps) {
+  const { deleteHabit } = useHabits();
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
+  const [isArmed, setIsArmed] = useState(false);
+  const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleDeleteClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (isArmed) {
+        if (disarmTimer.current) clearTimeout(disarmTimer.current);
+        setIsArmed(false);
+        deleteHabit(habit.id);
+        onClose(); // Automatically close the sheet when the habit no longer exists
+      } else {
+        if (disarmTimer.current) clearTimeout(disarmTimer.current);
+        setIsArmed(true);
+        disarmTimer.current = setTimeout(() => setIsArmed(false), 2500);
+      }
+    },
+    [isArmed, deleteHabit, habit.id, onClose]
+  );
+
+  useEffect(() => {
+    return () => { if (disarmTimer.current) clearTimeout(disarmTimer.current); };
+  }, []);
 
   // Generate completion rate over last 30 days
   const calculateRate = () => {
@@ -106,6 +131,25 @@ export function MonkHabitSheet({ habit, onClose }: MonkHabitSheetProps) {
               <p>{aiInsight}</p>
             </div>
           )}
+        </div>
+
+        <div className={styles.dangerSection} style={{ marginTop: 24, display: 'flex', flexDirection: 'column' }}>
+          <button
+            onClick={handleDeleteClick}
+            style={{
+              background: isArmed ? '#FFE2E5' : 'transparent',
+              border: isArmed ? '1px solid #E03E3E' : '1px dashed #E03E3E',
+              color: '#E03E3E',
+              padding: '12px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            {isArmed ? 'Tap again to delete completely' : 'Delete Activity'}
+          </button>
         </div>
       </motion.div>
     </div>

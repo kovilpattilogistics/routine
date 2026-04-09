@@ -112,28 +112,7 @@ export function GroupListAccordion({
                     </span>
                   )}
 
-                  {/* Delete — arm & fire pattern */}
-                  <button
-                    className={`${styles.deleteGroupBtn} ${isArmed ? styles.deleteArmed : ""}`}
-                    onClick={(e) => handleDeleteClick(e, group.id)}
-                    title={isArmed ? "Tap again to confirm delete" : "Delete group"}
-                    aria-label={isArmed ? "Confirm delete group" : "Delete group"}
-                  >
-                    {isArmed ? (
-                      // Pulsing ring + trash when armed
-                      <span className={styles.armedRing}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                      </span>
-                    ) : (
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                      </svg>
-                    )}
-                  </button>
+                  {/* Delete removed from header to prevent mobile misclicks */}
 
                   {/* Chevron */}
                   <div className={`${styles.chevron} ${isActive ? styles.chevronOpen : ""}`}>
@@ -144,18 +123,26 @@ export function GroupListAccordion({
                 </div>
               </div>
 
-              {/* Armed tooltip */}
-              {isArmed && (
-                <div className={styles.armedTooltip}>
-                  Tap trash again to delete · Auto-cancels in 2.5s
-                </div>
-              )}
+              {/* Tooltip removed over header space */}
             </div>
 
             {/* Accordion body — CSS grid-template-rows (no layout thrash) */}
             <div className={`${styles.gridExpansion} ${isActive ? styles.expansionOpen : ""}`}>
               <div className={styles.gridInternal}>
                 {isActive && renderGrid(group.id)}
+
+                {/* Safe internal danger zone for deleting the group */}
+                {isActive && (
+                  <div className={styles.dangerBottomContainer}>
+                    <button
+                      className={`${styles.dangerBottomBtn} ${isArmed ? styles.deleteArmed : ""}`}
+                      onClick={(e) => handleDeleteClick(e, group.id)}
+                      title={isArmed ? "Tap again to confirm delete" : "Delete group"}
+                    >
+                      {isArmed ? "Tap again to delete group" : "Delete Group"}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

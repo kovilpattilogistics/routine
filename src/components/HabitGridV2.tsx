@@ -180,12 +180,8 @@ const HabitRow = memo(function HabitRow({
   onLongPressCell,
   themeColor,
 }: HabitRowProps) {
-  const { deleteHabit } = useHabits();
-  // arm-and-fire: null = disarmed | true = armed
-  const [isArmed, setIsArmed] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const rowRef = useRef<HTMLDivElement>(null);
-  const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pre-compute broken streak state — only recalc when completedDays changes
   const isBroken = React.useMemo(() => {
@@ -247,28 +243,7 @@ const HabitRow = memo(function HabitRow({
     [habit.id, todayStr, onToggle]
   );
 
-  const handleDeleteClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (isArmed) {
-        // Second tap — fire
-        if (disarmTimer.current) clearTimeout(disarmTimer.current);
-        setIsArmed(false);
-        deleteHabit(habit.id);
-      } else {
-        // First tap — arm
-        if (disarmTimer.current) clearTimeout(disarmTimer.current);
-        setIsArmed(true);
-        disarmTimer.current = setTimeout(() => setIsArmed(false), 2500);
-      }
-    },
-    [isArmed, deleteHabit, habit.id]
-  );
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => { if (disarmTimer.current) clearTimeout(disarmTimer.current); };
-  }, []);
 
   // Drag handle — touchstart on the grip icon
   const dragHandleProps = {
@@ -304,7 +279,7 @@ const HabitRow = memo(function HabitRow({
       {/* Left: habit meta */}
       <div
         className={styles.habitMeta}
-        onClick={() => !isArmed && onHabitClick(habit)}
+        onClick={() => onHabitClick(habit)}
       >
         <div className={styles.habitTitleRow}>
           <span className={styles.dragHandle} title="Drag to reorder" {...dragHandleProps}>
@@ -313,27 +288,7 @@ const HabitRow = memo(function HabitRow({
           <span className={styles.emoji}>{habit.emoji || "✅"}</span>
           <span className={styles.name}>{habit.name}</span>
 
-          {/* Delete — arm & fire */}
-          <button
-            className={`${styles.deleteHabitBtn} ${isArmed ? styles.deleteArmed : ""}`}
-            onClick={handleDeleteClick}
-            title={isArmed ? "Tap again to delete" : "Delete habit"}
-            aria-label={isArmed ? "Confirm delete habit" : "Delete habit"}
-          >
-            {isArmed ? (
-              <span className={styles.armedRing}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-              </span>
-            ) : (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              </svg>
-            )}
-          </button>
+          {/* Delete button removed from grid to avoid misclicks. Available in details. */}
         </div>
 
         {/* XP progress bar */}
