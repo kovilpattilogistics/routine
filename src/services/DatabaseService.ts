@@ -45,6 +45,13 @@ export interface UserProfile {
   fitnessGoal?: string;
   dietaryPreference?: string;
   
+  // Behavioral Profiling (Smart Generator)
+  peakEnergy?: "early_morning" | "mid_day" | "late_night";
+  dailyFreeTime?: "under_1h" | "1_3h" | "over_3h";
+  habitConsistency?: "struggle" | "consistent" | "optimizer";
+  workEnvironment?: "wfh" | "commuter" | "student";
+  primaryDriver?: "peace" | "ambition" | "survival";
+  
   // Custom Avatar
   avatarSeed?: string;
   avatarStyle?: "adventurer" | "micah" | "bottts" | "notionists";

@@ -20,10 +20,34 @@ const FOCUS_LABELS: Record<string, string> = {
   wellness: "Me-time & Wellness",
 };
 
-const ROLE_LABELS: Record<string, string> = {
-  building_habits: "Building new habits",
-  getting_structured: "Getting more structured",
-  fixing_routine: "Fixing my routine",
+const PRIMARY_DRIVER_LABELS: Record<string, string> = {
+  peace: "Mental Peace & Healing",
+  ambition: "Ambition & Growth",
+  survival: "Survival & Structure",
+};
+
+const CHRONOTYPE_LABELS: Record<string, string> = {
+  early_morning: "Early Bird",
+  mid_day: "Mid-Day Grinder",
+  late_night: "Night Owl",
+};
+
+const FREETIME_LABELS: Record<string, string> = {
+  under_1h: "Under 1 hour",
+  "1_3h": "1-3 hours",
+  over_3h: "3+ hours",
+};
+
+const ENV_LABELS: Record<string, string> = {
+  wfh: "Work From Home",
+  commuter: "Commuter / Office",
+  student: "Student / Nomadic",
+};
+
+const HABIT_BASELINE_LABELS: Record<string, string> = {
+  struggle: "I struggle to stick",
+  consistent: "Somewhat consistent",
+  optimizer: "Optimization freak",
 };
 
 const STRUGGLE_LABELS: Record<string, string> = {
@@ -94,7 +118,11 @@ export default function ProfilePage() {
   const [editAge, setEditAge] = useState("");
   const [editHeight, setEditHeight] = useState("");
   const [editWeight, setEditWeight] = useState("");
-  const [editRole, setEditRole] = useState("");
+  const [editPrimaryDriver, setEditPrimaryDriver] = useState("");
+  const [editPeakEnergy, setEditPeakEnergy] = useState("");
+  const [editDailyFreeTime, setEditDailyFreeTime] = useState("");
+  const [editWorkEnvironment, setEditWorkEnvironment] = useState("");
+  const [editHabitConsistency, setEditHabitConsistency] = useState("");
   const [editStruggle, setEditStruggle] = useState("");
   const [editFocusArea, setEditFocusArea] = useState("");
   const [editWakeTime, setEditWakeTime] = useState("");
@@ -130,7 +158,11 @@ export default function ProfilePage() {
     setEditAge(p.age?.toString() ?? "");
     setEditHeight(p.height?.toString() ?? "");
     setEditWeight(p.weight?.toString() ?? "");
-    setEditRole(p.role ?? "");
+    setEditPrimaryDriver(p.primaryDriver ?? p.role ?? ""); // fallback to legacy role if present
+    setEditPeakEnergy(p.peakEnergy ?? "");
+    setEditDailyFreeTime(p.dailyFreeTime ?? "");
+    setEditWorkEnvironment(p.workEnvironment ?? "");
+    setEditHabitConsistency(p.habitConsistency ?? "");
     setEditStruggle(p.struggle ?? "");
     setEditFocusArea(p.focusArea ?? "");
     setEditWakeTime(p.wakeTime ?? "");
@@ -159,7 +191,11 @@ export default function ProfilePage() {
         age: editAge ? Number(editAge) : deleteField() as any,
         height: editHeight ? Number(editHeight) : deleteField() as any,
         weight: editWeight ? Number(editWeight) : deleteField() as any,
-        role: editRole || deleteField() as any,
+        primaryDriver: editPrimaryDriver || deleteField() as any,
+        peakEnergy: editPeakEnergy || deleteField() as any,
+        dailyFreeTime: editDailyFreeTime || deleteField() as any,
+        workEnvironment: editWorkEnvironment || deleteField() as any,
+        habitConsistency: editHabitConsistency || deleteField() as any,
         struggle: editStruggle || deleteField() as any,
         focusArea: editFocusArea || deleteField() as any,
         wakeTime: editWakeTime || deleteField() as any,
@@ -322,46 +358,100 @@ export default function ProfilePage() {
             </div>
         )}
 
-        {/* Journey snapshot */}
+        {/* Profile Context */}
         <section className={styles.section} style={{ marginBottom: "24px" }}>
-          <p className={styles.sectionLabel}>Your Journey</p>
+          <div className={styles.sectionHeader}>
+            <p className={styles.sectionLabel}>Behavioral Profile</p>
+          </div>
           {isEditing ? (
-            <div className={styles.editGrid}>
-              <div className={styles.editField}>
-                <label className={styles.editLabel}>Here To</label>
-                <select className={styles.editSelect} value={editRole} onChange={e => setEditRole(e.target.value)}>
-                  <option value="">Select...</option>
-                  {Object.entries(ROLE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
-              <div className={styles.editField}>
-                <label className={styles.editLabel}>Goal Focus</label>
-                <select className={styles.editSelect} value={editFocusArea} onChange={e => setEditFocusArea(e.target.value)}>
-                  <option value="">Select...</option>
-                  {Object.entries(FOCUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
-              <div className={styles.editField}>
-                <label className={styles.editLabel}>Main Struggle</label>
-                <select className={styles.editSelect} value={editStruggle} onChange={e => setEditStruggle(e.target.value)}>
-                  <option value="">Select...</option>
-                  {Object.entries(STRUGGLE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
+             <div className={styles.editGridFull}>
+                <div className={styles.editGrid} style={{ marginBottom: 0 }}>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Primary Driver</label>
+                    <select className={styles.editSelect} value={editPrimaryDriver} onChange={e => setEditPrimaryDriver(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(PRIMARY_DRIVER_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Chronotype</label>
+                    <select className={styles.editSelect} value={editPeakEnergy} onChange={e => setEditPeakEnergy(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(CHRONOTYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Free Time</label>
+                    <select className={styles.editSelect} value={editDailyFreeTime} onChange={e => setEditDailyFreeTime(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(FREETIME_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </div>
+                
+                <div className={styles.editGrid}>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Environment</label>
+                    <select className={styles.editSelect} value={editWorkEnvironment} onChange={e => setEditWorkEnvironment(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(ENV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Habit Baseline</label>
+                    <select className={styles.editSelect} value={editHabitConsistency} onChange={e => setEditHabitConsistency(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(HABIT_BASELINE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.editGrid} style={{ marginBottom: 0 }}>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Main Struggle</label>
+                    <select className={styles.editSelect} value={editStruggle} onChange={e => setEditStruggle(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(STRUGGLE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>Focus Area</label>
+                    <select className={styles.editSelect} value={editFocusArea} onChange={e => setEditFocusArea(e.target.value)}>
+                      <option value="">Select...</option>
+                      {Object.entries(FOCUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </div>
             </div>
           ) : (
             <div className={styles.infoGrid} style={{ marginBottom: "16px" }}>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Here to</span>
-                <span className={styles.infoValue}>{ROLE_LABELS[profile.role || ""] ?? profile.role ?? "—"}</span>
+                <span className={styles.infoLabel}>Driver</span>
+                <span className={styles.infoValue}>{PRIMARY_DRIVER_LABELS[profile.primaryDriver || profile.role || ""] ?? profile.primaryDriver ?? profile.role ?? "—"}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Focus area</span>
-                <span className={styles.infoValue}>{FOCUS_LABELS[profile.focusArea || ""] ?? profile.focusArea ?? "—"}</span>
+                <span className={styles.infoLabel}>Chronotype</span>
+                <span className={styles.infoValue}>{CHRONOTYPE_LABELS[profile.peakEnergy || ""] ?? profile.peakEnergy ?? "—"}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Main Struggle</span>
+                <span className={styles.infoLabel}>Bandwidth</span>
+                <span className={styles.infoValue}>{FREETIME_LABELS[profile.dailyFreeTime || ""] ?? profile.dailyFreeTime ?? "—"}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Environment</span>
+                <span className={styles.infoValue}>{ENV_LABELS[profile.workEnvironment || ""] ?? profile.workEnvironment ?? "—"}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Baseline</span>
+                <span className={styles.infoValue}>{HABIT_BASELINE_LABELS[profile.habitConsistency || ""] ?? profile.habitConsistency ?? "—"}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Struggle</span>
                 <span className={styles.infoValue}>{STRUGGLE_LABELS[profile.struggle || ""] ?? profile.struggle ?? "—"}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Focus</span>
+                <span className={styles.infoValue}>{FOCUS_LABELS[profile.focusArea || ""] ?? profile.focusArea ?? "—"}</span>
               </div>
             </div>
           )}

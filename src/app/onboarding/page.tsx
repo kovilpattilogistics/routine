@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { DatabaseService, UserProfile, Group } from "@/services/DatabaseService";
+import { DatabaseService, UserProfile } from "@/services/DatabaseService";
 import styles from "./onboarding.module.css";
 
 // ── Data ───────────────────────────────────────────────────────────────
-const ROLES = [
-  { value: "building_habits", emoji: "🌱", title: "Build new habits", sub: "Starting from scratch, one step at a time" },
-  { value: "getting_structured", emoji: "🗂️", title: "Get more structured", sub: "Turn the chaos into a clear, calm system" },
-  { value: "fixing_routine", emoji: "🔧", title: "Fix my routine", sub: "I have habits but can't make them stick" },
+const PRIMARY_DRIVERS = [
+  { value: "peace", emoji: "🧘", title: "Mental Peace & Healing", sub: "I need calm and simple daily wins" },
+  { value: "ambition", emoji: "🚀", title: "Ambition & Growth", sub: "I'm here to optimise and dominate" },
+  { value: "survival", emoji: "🛟", title: "Survival & Structure", sub: "I just need to stop drowning in chaos" },
 ] as const;
 
 const STRUGGLES = [
@@ -19,6 +19,30 @@ const STRUGGLES = [
   { value: "forgetting", emoji: "🧠", label: "Forgetting" },
   { value: "overwhelm", emoji: "🌊", label: "Feeling Overwhelmed" },
   { value: "motivation", emoji: "🔋", label: "Low Motivation" },
+] as const;
+
+const CHRONOTYPES = [
+  { value: "early_morning", emoji: "🌅", title: "Early Bird", sub: "Sharpest at 6 AM" },
+  { value: "mid_day", emoji: "☀️", title: "Mid-Day Grinder", sub: "Steady pace from 10 to 4" },
+  { value: "late_night", emoji: "🦉", title: "Night Owl", sub: "I come alive after 9 PM" },
+] as const;
+
+const FREE_TIMES = [
+  { value: "under_1h", emoji: "⏱️", title: "Under 1 hour", sub: "Barely scraping by" },
+  { value: "1_3h", emoji: "⏳", title: "1-3 hours", sub: "A moderate chunk of evening time" },
+  { value: "over_3h", emoji: "🕰️", title: "3+ hours", sub: "Lots of free time to deploy" },
+] as const;
+
+const ENVIRONMENTS = [
+  { value: "wfh", emoji: "🏠", title: "Work From Home", sub: "My desk is my dining table" },
+  { value: "commuter", emoji: "🏢", title: "Commuter / Office", sub: "I have to physically go to work" },
+  { value: "student", emoji: "🎒", title: "Student / Nomadic", sub: "Always shifting environments" },
+] as const;
+
+const HABIT_BASELINES = [
+  { value: "struggle", emoji: "🧗", title: "I struggle to stick", sub: "I always quit around Day 4" },
+  { value: "consistent", emoji: "🚶", title: "Somewhat consistent", sub: "I hit 50-70% of my goals" },
+  { value: "optimizer", emoji: "📈", title: "Optimization freak", sub: "I want to track 15 things perfectly" },
 ] as const;
 
 const FOCUS_AREAS = [
@@ -30,7 +54,7 @@ const FOCUS_AREAS = [
   { value: "wellness", emoji: "🌿", label: "Me-time & Wellness" },
 ] as const;
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 9;
 
 // ── Component ──────────────────────────────────────────────────────────
 export default function OnboardingPage() {
@@ -42,8 +66,13 @@ export default function OnboardingPage() {
   const [animating, setAnimating] = useState(false);
 
   // Answers
-  const [role, setRole] = useState<string>("");
+  const [primaryDriver, setPrimaryDriver] = useState<string>("");
   const [struggle, setStruggle] = useState<string>("");
+  const [peakEnergy, setPeakEnergy] = useState<string>("");
+  const [dailyFreeTime, setDailyFreeTime] = useState<string>("");
+  const [workEnvironment, setWorkEnvironment] = useState<string>("");
+  const [habitConsistency, setHabitConsistency] = useState<string>("");
+  
   // Physical details
   const [age, setAge] = useState("");
   const [heightCm, setHeightCm] = useState("");
@@ -56,8 +85,7 @@ export default function OnboardingPage() {
     if (!loading && !user) router.replace("/login");
   }, [user, loading, router]);
 
-  if (loading) return null;
-  if (!user) return null;
+  if (loading || !user) return null;
 
   const progress = (step / TOTAL_STEPS) * 100;
 
@@ -78,10 +106,14 @@ export default function OnboardingPage() {
     setSubmitting(true);
 
     const profileUpdate: Partial<UserProfile> = {
-      role: role as any,
+      primaryDriver: primaryDriver as any,
       struggle: struggle as any,
+      peakEnergy: peakEnergy as any,
+      dailyFreeTime: dailyFreeTime as any,
+      workEnvironment: workEnvironment as any,
+      habitConsistency: habitConsistency as any,
       wakeTime,
-      focusArea,
+      focusArea: overrideFocusArea || focusArea,
       onboardingComplete: true,
       ...(age ? { age: Number(age) } : {}),
       ...(heightCm ? { height: Number(heightCm) } : {}),
@@ -89,17 +121,13 @@ export default function OnboardingPage() {
     };
 
     try {
-      // Try to update profile; fall back to create if it doesn't exist
-      const area = overrideFocusArea || focusArea;
-      const finalUpdate = { ...profileUpdate, focusArea: area };
       try {
-        await DatabaseService.getInstance().updateUserProfile(user.uid, finalUpdate);
+        await DatabaseService.getInstance().updateUserProfile(user.uid, profileUpdate);
       } catch {
-        await DatabaseService.getInstance().createUserProfile(user.uid, finalUpdate);
+        await DatabaseService.getInstance().createUserProfile(user.uid, profileUpdate);
       }
     } catch (e) {
       console.error("Onboarding save error:", e);
-      // Don't block the user — mark complete and continue
       try { await DatabaseService.getInstance().updateUserProfile(user.uid, { onboardingComplete: true }); } catch {}
     } finally {
       setSubmitting(false);
@@ -120,18 +148,18 @@ export default function OnboardingPage() {
       {/* Screen content */}
       <div className={`${styles.screen} ${animating ? styles.screenExit : styles.screenEnter}`}>
 
-        {/* ── SCREEN 1: Role ── */}
+        {/* ── SCREEN 1: Driver ── */}
         {step === 1 && (
           <div className={styles.screenInner}>
-            <h1 className={styles.question}>What brings you here?</h1>
-            <p className={styles.hint}>We'll personalise your planner around your answer.</p>
+            <h1 className={styles.question}>What is your primary driver right now?</h1>
+            <p className={styles.hint}>We will frame your habits around your actual goals.</p>
             <div className={styles.cardGrid}>
-              {ROLES.map((r) => (
+              {PRIMARY_DRIVERS.map((r) => (
                 <button
                   key={r.value}
                   type="button"
-                  className={`${styles.roleCard} ${role === r.value ? styles.roleCardActive : ""}`}
-                  onClick={() => { setRole(r.value); advance(2); }}
+                  className={`${styles.roleCard} ${primaryDriver === r.value ? styles.roleCardActive : ""}`}
+                  onClick={() => { setPrimaryDriver(r.value); advance(2); }}
                 >
                   <span className={styles.roleEmoji}>{r.emoji}</span>
                   <span className={styles.roleTitle}>{r.title}</span>
@@ -164,11 +192,103 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── SCREEN 3: Physical Details ── */}
+        {/* ── SCREEN 3: Chronotype ── */}
         {step === 3 && (
           <div className={styles.screenInner}>
-            <h1 className={styles.question}>Tell us about yourself</h1>
-            <p className={styles.hint}>We use this to personalise your routine goals. All fields are optional.</p>
+            <h1 className={styles.question}>When is your peak energy?</h1>
+            <p className={styles.hint}>We will place your heaviest habits here.</p>
+            <div className={styles.cardGrid}>
+              {CHRONOTYPES.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={`${styles.roleCard} ${peakEnergy === r.value ? styles.roleCardActive : ""}`}
+                  onClick={() => { setPeakEnergy(r.value); advance(4); }}
+                >
+                  <span className={styles.roleEmoji}>{r.emoji}</span>
+                  <span className={styles.roleTitle}>{r.title}</span>
+                  <span className={styles.roleSub}>{r.sub}</span>
+                </button>
+              ))}
+            </div>
+            <button className={styles.backBtn} onClick={() => advance(2)}>← Back</button>
+          </div>
+        )}
+
+        {/* ── SCREEN 4: Bandwidth ── */}
+        {step === 4 && (
+          <div className={styles.screenInner}>
+            <h1 className={styles.question}>How much free time do you realistically have?</h1>
+            <p className={styles.hint}>Be brutally honest. High friction destroys new habits.</p>
+            <div className={styles.cardGrid}>
+              {FREE_TIMES.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={`${styles.roleCard} ${dailyFreeTime === r.value ? styles.roleCardActive : ""}`}
+                  onClick={() => { setDailyFreeTime(r.value); advance(5); }}
+                >
+                  <span className={styles.roleEmoji}>{r.emoji}</span>
+                  <span className={styles.roleTitle}>{r.title}</span>
+                  <span className={styles.roleSub}>{r.sub}</span>
+                </button>
+              ))}
+            </div>
+            <button className={styles.backBtn} onClick={() => advance(3)}>← Back</button>
+          </div>
+        )}
+
+        {/* ── SCREEN 5: Environment ── */}
+        {step === 5 && (
+          <div className={styles.screenInner}>
+            <h1 className={styles.question}>Where do you spend most of your day?</h1>
+            <p className={styles.hint}>We'll use this to build environmental triggers.</p>
+            <div className={styles.cardGrid}>
+              {ENVIRONMENTS.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={`${styles.roleCard} ${workEnvironment === r.value ? styles.roleCardActive : ""}`}
+                  onClick={() => { setWorkEnvironment(r.value); advance(6); }}
+                >
+                  <span className={styles.roleEmoji}>{r.emoji}</span>
+                  <span className={styles.roleTitle}>{r.title}</span>
+                  <span className={styles.roleSub}>{r.sub}</span>
+                </button>
+              ))}
+            </div>
+            <button className={styles.backBtn} onClick={() => advance(4)}>← Back</button>
+          </div>
+        )}
+
+        {/* ── SCREEN 6: Baseline ── */}
+        {step === 6 && (
+          <div className={styles.screenInner}>
+            <h1 className={styles.question}>What is your current habit baseline?</h1>
+            <p className={styles.hint}>This dictates how many habits we should assign you.</p>
+            <div className={styles.cardGrid}>
+              {HABIT_BASELINES.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={`${styles.roleCard} ${habitConsistency === r.value ? styles.roleCardActive : ""}`}
+                  onClick={() => { setHabitConsistency(r.value); advance(7); }}
+                >
+                  <span className={styles.roleEmoji}>{r.emoji}</span>
+                  <span className={styles.roleTitle}>{r.title}</span>
+                  <span className={styles.roleSub}>{r.sub}</span>
+                </button>
+              ))}
+            </div>
+            <button className={styles.backBtn} onClick={() => advance(5)}>← Back</button>
+          </div>
+        )}
+
+        {/* ── SCREEN 7: Physical Details ── */}
+        {step === 7 && (
+          <div className={styles.screenInner}>
+            <h1 className={styles.question}>Tell us about your body</h1>
+            <p className={styles.hint}>We use this to personalise physical metrics. All fields optional.</p>
             <div className={styles.physicalGrid}>
               <div className={styles.physicalField}>
                 <label className={styles.physicalLabel}>Age</label>
@@ -194,23 +314,23 @@ export default function OnboardingPage() {
             </div>
             {physicalError && <p className={styles.fieldError}>{physicalError}</p>}
             <div className={styles.navRow}>
-              <button className={styles.backBtn} onClick={() => advance(2)}>← Back</button>
+              <button className={styles.backBtn} onClick={() => advance(6)}>← Back</button>
               <button className={styles.nextBtn} onClick={() => {
                 setPhysicalError("");
                 if (age && (Number(age) < 10 || Number(age) > 120)) { setPhysicalError("Enter a valid age."); return; }
                 if (heightCm && (Number(heightCm) < 50 || Number(heightCm) > 300)) { setPhysicalError("Enter height in cm (50–300)."); return; }
                 if (weightKg && (Number(weightKg) < 20 || Number(weightKg) > 300)) { setPhysicalError("Enter weight in kg (20–300)."); return; }
-                advance(4);
+                advance(8);
               }}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* ── SCREEN 4: Wake time ── */}
-        {step === 4 && (
+        {/* ── SCREEN 8: Wake time ── */}
+        {step === 8 && (
           <div className={styles.screenInner}>
             <h1 className={styles.question}>When does your day begin?</h1>
-            <p className={styles.hint}>We'll schedule your first task here so you start strong.</p>
+            <p className={styles.hint}>We'll schedule your first task here.</p>
             <div className={styles.timePickerWrap}>
               <div className={styles.timeDisplay}>{wakeTime}</div>
               <input className={styles.timeSlider} type="time" value={wakeTime} onChange={(e) => setWakeTime(e.target.value)} />
@@ -222,17 +342,17 @@ export default function OnboardingPage() {
               </p>
             </div>
             <div className={styles.navRow}>
-              <button className={styles.backBtn} onClick={() => advance(3)}>← Back</button>
-              <button className={styles.nextBtn} onClick={() => advance(5)}>Continue →</button>
+              <button className={styles.backBtn} onClick={() => advance(7)}>← Back</button>
+              <button className={styles.nextBtn} onClick={() => advance(9)}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* ── SCREEN 5: Focus area ── */}
-        {step === 5 && (
+        {/* ── SCREEN 9: Focus area ── */}
+        {step === 9 && (
           <div className={styles.screenInner}>
             <h1 className={styles.question}>Which area needs the most love?</h1>
-            <p className={styles.hint}>This becomes your primary focus in the planner.</p>
+            <p className={styles.hint}>This determines the content category of your habits.</p>
             <div className={styles.tileGrid}>
               {FOCUS_AREAS.map((f) => (
                 <button key={f.value} type="button"
@@ -251,7 +371,7 @@ export default function OnboardingPage() {
             
             {submitting && <div className={styles.spinner} style={{ margin: "20px auto" }} />}
             
-            <button className={styles.backBtn} onClick={() => advance(4)} disabled={submitting}>← Back</button>
+            <button className={styles.backBtn} onClick={() => advance(8)} disabled={submitting}>← Back</button>
           </div>
         )}
       </div>
