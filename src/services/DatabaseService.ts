@@ -85,6 +85,19 @@ export interface Habit {
   completedDays?: Record<string, number | null>;
 }
 
+export interface TodoItem {
+  id: string;
+  userId: string;
+  date: string; // YYYY-MM-DD string explicitly binds to an organic calendar day
+  title: string;
+  done: boolean;
+  notes?: string;
+  priority?: "low" | "medium" | "high";
+  timeBlock?: "morning" | "afternoon" | "evening";
+  sortOrder: number;
+  createdAt?: Timestamp;
+}
+
 // ── SERVICE ──────────────────────────────────────────────────
 
 export class DatabaseService {
@@ -381,5 +394,37 @@ export class DatabaseService {
     });
 
     await batch.commit();
+  }
+
+  // ── TODOS (Day Planner) ───────────────────────────────────
+
+  async getTodosForDate(userId: string, dateStr: string): Promise<TodoItem[]> {
+    const q = query(
+      collection(db, "users", userId, "todos"),
+      where("date", "==", dateStr)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() } as TodoItem))
+      .sort((a, b) => {
+        // Unchecked items above checked items naturally, then sort by order
+        if (a.done !== b.done) return a.done ? 1 : -1;
+        return a.sortOrder - b.sortOrder;
+      });
+  }
+
+  async addTodo(userId: string, todo: TodoItem) {
+    const todoRef = doc(db, "users", userId, "todos", todo.id);
+    await setDoc(todoRef, { ...todo, createdAt: Timestamp.now() });
+  }
+
+  async updateTodo(userId: string, todoId: string, data: Partial<TodoItem>) {
+    const todoRef = doc(db, "users", userId, "todos", todoId);
+    await updateDoc(todoRef, data as Record<string, unknown>);
+  }
+
+  async deleteTodo(userId: string, todoId: string) {
+    const todoRef = doc(db, "users", userId, "todos", todoId);
+    await deleteDoc(todoRef);
   }
 }

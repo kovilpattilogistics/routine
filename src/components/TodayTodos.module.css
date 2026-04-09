@@ -1,0 +1,207 @@
+.todosContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 40px;
+  background: transparent;
+  min-height: 50vh;
+}
+
+.emptyState {
+  text-align: center;
+  color: #9b9a97;
+  font-size: 14px;
+  margin: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.emptyState svg {
+  color: #D3D1CB;
+}
+
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Tight padding to mimic lists */
+  list-style: none;
+  margin: 0 0 16px 0;
+  padding: 0;
+}
+
+.todoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 8px;
+  border-radius: 8px;
+  transition: background 0.1s, opacity 0.2s;
+  cursor: text;
+}
+
+.todoRow:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.todoRow.done {
+  opacity: 0.55;
+}
+
+.todoRow.done .todoTitle {
+  text-decoration: line-through;
+  color: #787774;
+}
+
+.checkboxWrap {
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 24px;
+  margin-left: -12px;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1.5px solid #d3d1cb;
+  background: #fff;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox.checked {
+  background: #2383E2;
+  border-color: #2383E2;
+}
+
+.checkIcon {
+  color: #fff;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.checkbox.checked .checkIcon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.contentWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.todoTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #37352f;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.todoTitle::placeholder {
+  color: #d3d1cb;
+}
+
+.todoNotes {
+  font-size: 16px;
+  color: #787774;
+  margin: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  resize: none;
+  line-height: 1.4;
+}
+
+.todoNotes::placeholder {
+  color: #d3d1cb;
+}
+
+.deleteBtn {
+  background: transparent;
+  border: none;
+  color: #d3d1cb;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.todoRow:hover .deleteBtn {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  background: #FFE2E5;
+  color: #E03E3E;
+}
+
+/* Quick Add Inline */
+.quickAddRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  cursor: text;
+  border-radius: 8px;
+}
+
+.quickAddRow:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+.quickAddPlus {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d3d1cb;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.quickAddInput {
+  flex: 1;
+  font-size: 16px;
+  margin: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #37352f;
+  font-weight: 400;
+}
+
+.quickAddInput::placeholder {
+  color: #9b9a97;
+}
+
+/* On mobile show delete button always since no hover */
+@media (max-width: 768px) {
+  .deleteBtn {
+    opacity: 0.6;
+  }
+}

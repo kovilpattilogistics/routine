@@ -16,8 +16,10 @@ import { CellDetailsModal } from "@/components/CellDetailsModal";
 import { AIInsightCard } from "@/components/AIInsightCard";
 import { MonkHabitSheet } from "@/components/MonkHabitSheet";
 import { PastDataModal } from "@/components/PastDataModal";
+import { TodayTodos } from "@/components/TodayTodos";
 
 import styles from "./planner.module.css";
+import tabsStyles from "./tabs.module.css";
 
 export default function PlannerPage() {
   const { user, loading: authLoading } = useAuth();
@@ -47,6 +49,7 @@ export default function PlannerPage() {
   const [latestAction, setLatestAction] = useState<string | undefined>(undefined);
   const [baseDate, setBaseDate] = useState(new Date());
   const [isPastDataModalOpen, setIsPastDataModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"routine" | "todos">("routine");
 
   // Accumulate XP changes
   const pendingXPAward = useRef(0);
@@ -182,7 +185,7 @@ export default function PlannerPage() {
 
       <main className={styles.v2Main}>
         {/* AI Insight — loads async, doesn't block page */}
-        {profile && (
+        {profile && activeTab === "routine" && (
           <AIInsightCard
             profile={profile}
             habits={habits}
@@ -190,7 +193,24 @@ export default function PlannerPage() {
           />
         )}
 
-        {groups.length === 0 && !habitsLoading ? (
+        <div className={tabsStyles.tabBar}>
+          <button
+            className={`${tabsStyles.tab} ${activeTab === "routine" ? tabsStyles.active : ""}`}
+            onClick={() => setActiveTab("routine")}
+          >
+            Daily Activities
+          </button>
+          <button
+            className={`${tabsStyles.tab} ${activeTab === "todos" ? tabsStyles.active : ""}`}
+            onClick={() => setActiveTab("todos")}
+          >
+            Today's To-Dos
+          </button>
+        </div>
+
+        {activeTab === "routine" ? (
+          <div className={tabsStyles.tabPanel}>
+            {groups.length === 0 && !habitsLoading ? (
           <div className={styles.emptyCanvasNudge}>
             <div className={styles.emptyIcon}>✨</div>
             <h2>You have a blank canvas.</h2>
@@ -250,6 +270,12 @@ export default function PlannerPage() {
               );
             }}
           />
+        )}
+          </div>
+        ) : (
+          <div className={tabsStyles.tabPanel}>
+            <TodayTodos userId={user.uid} baseDate={baseDate} />
+          </div>
         )}
       </main>
 
